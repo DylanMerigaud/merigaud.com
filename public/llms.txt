@@ -8,13 +8,13 @@ Specialties: AP automation, invoice extraction, approval workflows, reconciliati
 
 ## Work
 
-- [ledgerloop](https://merigaud.com/work/ledgerloop): an agent reads a company's HRIS and derives the whole approval workflow, then invoices route through it. Live demo: https://ledgerloop.merigaud.com/
-- [approvals-ui](https://merigaud.com/work/approvals-ui): the approval workflow screen as shadcn components. Quorum gates, amount thresholds, a segregation-of-duties policy lint, plain-language editing. Playground: https://approvals-ui.vercel.app
-- [fintech-roast](https://merigaud.com/work/fintech-roast): an agent that roasts the code that touches money. 41 researched rules across 10 domains (ledger integrity, rounding, FX, tax, webhooks, time, and more), adversarially verified findings, read-only. https://github.com/DylanMerigaud/fintech-roast
+- [ledgerloop](https://dylan.merigaud.com/work/ledgerloop): an agent reads a company's HRIS and derives the whole approval workflow, then invoices route through it. Live demo: https://ledgerloop.merigaud.com/
+- [approvals-ui](https://dylan.merigaud.com/work/approvals-ui): the approval workflow screen as shadcn components. Quorum gates, amount thresholds, a segregation-of-duties policy lint, plain-language editing. Playground: https://approvals-ui.vercel.app
+- [fintech-roast](https://dylan.merigaud.com/work/fintech-roast): an agent that roasts the code that touches money. 41 researched rules across 10 domains (ledger integrity, rounding, FX, tax, webhooks, time, and more), adversarially verified findings, read-only. https://github.com/DylanMerigaud/fintech-roast
 
 ## Links
 
-- Site: https://merigaud.com
+- Site: https://dylan.merigaud.com
 - GitHub: https://github.com/DylanMerigaud
 - LinkedIn: https://www.linkedin.com/in/dylanmerigaud
 - npm: https://www.npmjs.com/~dylanmerigaud

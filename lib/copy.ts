@@ -2,7 +2,7 @@
 // render from this file; edit copy here, never in components.
 
 export const site = {
-  url: "https://merigaud.com",
+  url: "https://dylan.merigaud.com",
   name: "Dylan Mérigaud",
   title: "Dylan Mérigaud | Freelance AI Full-Stack Engineer, Fintech",
   description:

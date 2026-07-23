@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const robots = (): MetadataRoute.Robots => ({
   rules: { userAgent: "*", allow: "/" },
-  sitemap: "https://merigaud.com/sitemap.xml",
+  sitemap: "https://dylan.merigaud.com/sitemap.xml",
 });
 
 export default robots;

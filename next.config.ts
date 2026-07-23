@@ -5,11 +5,17 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   redirects: () => [
-    // Canonical host is the apex (it matches dylan@merigaud.com).
+    // Canonical host is dylan.merigaud.com; the apex and www redirect to it.
+    {
+      source: "/:path*",
+      has: [{ type: "host", value: "merigaud.com" }],
+      destination: "https://dylan.merigaud.com/:path*",
+      permanent: true,
+    },
     {
       source: "/:path*",
       has: [{ type: "host", value: "www.merigaud.com" }],
-      destination: "https://merigaud.com/:path*",
+      destination: "https://dylan.merigaud.com/:path*",
       permanent: true,
     },
   ],
