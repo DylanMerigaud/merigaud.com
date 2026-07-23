@@ -33,7 +33,7 @@ export const ContactSection = () => (
         </div>
       </div>
 
-      <footer className="border-ink/15 mt-24 border-t py-8 md:flex md:items-center md:justify-between">
+      <footer className="border-ink/15 mt-24 border-t py-8 pl-7 md:flex md:items-center md:justify-between md:pl-10">
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           {footer.links.map((link) => (
             <li key={link.href}>

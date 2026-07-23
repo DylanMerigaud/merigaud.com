@@ -7,6 +7,7 @@ type HeroContentProps = {
   onTogglePlayback: () => void;
   pauseLabel: string;
   playLabel: string;
+  onReplay?: () => void;
 };
 
 // The DOM layer of the hero, shared by the video and ink3d variants. Real text
@@ -16,6 +17,7 @@ export const HeroContent = ({
   onTogglePlayback,
   pauseLabel,
   playLabel,
+  onReplay,
 }: HeroContentProps) => (
   <div
     data-hero-fade
@@ -59,14 +61,25 @@ export const HeroContent = ({
     <p className="eyebrow text-trace-dark absolute bottom-8 left-6 max-md:hidden md:left-10">
       {hero.scrollCue}
     </p>
-    <button
-      type="button"
-      onClick={onTogglePlayback}
-      aria-label={isPlaying ? pauseLabel : playLabel}
-      className="eyebrow border-paper/25 text-trace-dark hover:border-paper/60 hover:text-paper absolute right-6 bottom-6 min-h-11 min-w-11 rounded-md border px-4 py-3 transition-colors md:right-10"
-    >
-      <span className="max-md:hidden">{isPlaying ? pauseLabel : playLabel}</span>
-      <span className="md:hidden">{isPlaying ? "Pause" : "Play"}</span>
-    </button>
+    <div className="absolute right-6 bottom-6 flex items-center gap-3 md:right-10">
+      {onReplay === undefined ? null : (
+        <button
+          type="button"
+          onClick={onReplay}
+          className="eyebrow border-paper/25 text-trace-dark hover:border-paper/60 hover:text-paper min-h-11 rounded-md border px-4 py-3 transition-colors max-md:hidden"
+        >
+          replay run
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onTogglePlayback}
+        aria-label={isPlaying ? pauseLabel : playLabel}
+        className="eyebrow border-paper/25 text-trace-dark hover:border-paper/60 hover:text-paper min-h-11 min-w-11 rounded-md border px-4 py-3 transition-colors"
+      >
+        <span className="max-md:hidden">{isPlaying ? pauseLabel : playLabel}</span>
+        <span className="md:hidden">{isPlaying ? "Pause" : "Play"}</span>
+      </button>
+    </div>
   </div>
 );

@@ -171,27 +171,22 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
         </p>
       </div>
 
-      {isSkipped ? (
-        <button
-          type="button"
-          onClick={() => {
-            elapsedRef.current = 0;
-            phaseRef.current = 0;
-            skippedRef.current = false;
-            setPhase(0);
-            setIsSkipped(false);
-          }}
-          className="eyebrow border-paper/25 text-trace-dark hover:border-paper/60 hover:text-paper absolute right-6 bottom-[4.75rem] min-h-11 rounded-md border px-4 py-3 transition-colors max-md:hidden md:right-10"
-        >
-          replay run
-        </button>
-      ) : null}
-
       <HeroContent
         isPlaying={isPlaying}
         onTogglePlayback={onTogglePlayback}
-        pauseLabel="Pause background animation"
-        playLabel="Play background animation"
+        pauseLabel="Pause animation"
+        playLabel="Play animation"
+        onReplay={
+          isSkipped
+            ? () => {
+                elapsedRef.current = 0;
+                phaseRef.current = 0;
+                skippedRef.current = false;
+                setPhase(0);
+                setIsSkipped(false);
+              }
+            : undefined
+        }
       />
     </div>
   );

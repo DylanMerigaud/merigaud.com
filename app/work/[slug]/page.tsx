@@ -54,7 +54,10 @@ const CaseStudyPage = async ({ params }: PageParams) => {
       />
       <div className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-24">
         <nav aria-label="Breadcrumb" className="eyebrow text-trace">
-          <Link href="/#work" className="hover:text-ink transition-colors">
+          <Link
+            href="/#work"
+            className="hover:text-ink underline-offset-4 transition-colors hover:underline"
+          >
             the trace
           </Link>{" "}
           / {item.index} · {item.stage} / {item.title}

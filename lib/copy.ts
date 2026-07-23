@@ -18,15 +18,15 @@ export const site = {
 } as const;
 
 export const hero = {
-  eyebrow: "Dylan Mérigaud · Freelance AI Engineer · Fintech",
+  eyebrow: "Dylan Mérigaud · Freelance AI\u{A0}Engineer\u{A0}·\u{A0}Fintech",
   h1Line1: "Code decides the money.",
   h1Line2: "AI reads the mess.",
   sub: "I ship the AI and the product around it: orchestration, integrations, evals, the parts that survive real usage. 9 years full-stack, ex-Pivot (procurement fintech).",
   ctaEmailLabel: "dylan@merigaud.com",
   ctaWorkLabel: "See the work",
   scrollCue: "scroll · trace begins",
-  videoPause: "Pause background video",
-  videoPlay: "Play background video",
+  videoPause: "Pause video",
+  videoPlay: "Play video",
 } as const;
 
 type WorkLink = {
