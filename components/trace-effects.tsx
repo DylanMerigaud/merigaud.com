@@ -76,7 +76,14 @@ export const TraceEffects = () => {
           }
 
           entry.target.muted = true;
-          void entry.target.play();
+          const video = entry.target;
+          void (async () => {
+            try {
+              await video.play();
+            } catch {
+              // Poster remains if playback is refused.
+            }
+          })();
           figureObserver.unobserve(entry.target);
         }
       },

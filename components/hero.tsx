@@ -35,7 +35,15 @@ export const Hero = () => {
     const video = videoRef.current;
     if (video === null) return;
     if (isPlaying) {
-      void video.play();
+      // The gate may unmount this hero mid-play (ink3d upgrade); swallow the
+      // resulting AbortError so it never hits the console.
+      void (async () => {
+        try {
+          await video.play();
+        } catch {
+          // Unmounted or autoplay-blocked; the poster stays.
+        }
+      })();
     } else {
       video.pause();
     }
