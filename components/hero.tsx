@@ -22,11 +22,33 @@ const useShouldReduceMotion = () =>
     () => false
   );
 
+const COMPACT_QUERY = "(max-width: 767px)";
+
+const subscribeToCompact = (onChange: () => void) => {
+  const mediaQuery = window.matchMedia(COMPACT_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => {
+    mediaQuery.removeEventListener("change", onChange);
+  };
+};
+
+// Phones get a portrait re-crop of the loop centered on the inked graph; the
+// landscape master would show mostly empty desk in a tall viewport.
+const useIsCompact = () =>
+  useSyncExternalStore(
+    subscribeToCompact,
+    () => window.matchMedia(COMPACT_QUERY).matches,
+    () => false
+  );
+
 // The video hero: the default experience, and the fallback for the ink3d
 // variant (mobile, reduced motion, no WebGL).
 export const Hero = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shouldReduceMotion = useShouldReduceMotion();
+  const isCompact = useIsCompact();
+  const videoSrc = isCompact ? "/hero-mobile.mp4" : "/hero.mp4";
+  const posterSrc = isCompact ? "/hero-poster-mobile.jpg" : "/hero-poster.jpg";
   // null = the visitor has not touched the control; motion preference decides.
   const [playingOverride, setPlayingOverride] = useState<boolean | null>(null);
   const isPlaying = playingOverride ?? !shouldReduceMotion;
@@ -55,9 +77,10 @@ export const Hero = () => {
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url(/hero-poster.jpg)" }}
+        style={{ backgroundImage: `url(${posterSrc})` }}
       />
       <video
+        key={videoSrc}
         ref={videoRef}
         aria-hidden="true"
         autoPlay
@@ -65,11 +88,11 @@ export const Hero = () => {
         muted
         playsInline
         preload="metadata"
-        poster="/hero-poster.jpg"
+        poster={posterSrc}
         tabIndex={-1}
         className="hero-video absolute inset-0 size-full object-cover"
       >
-        <source src="/hero.mp4" type="video/mp4" />
+        <source src={videoSrc} type="video/mp4" />
       </video>
       {/* Base scrim for headline contrast, then the scroll-driven dim. */}
       <div

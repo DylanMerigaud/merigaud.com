@@ -199,7 +199,7 @@ export const contact = {
   eyebrow: "let's talk",
   heading: "Building AI into a fintech product? Let's talk.",
   ctaEmailLabel: "dylan@merigaud.com",
-  ctaCallLabel: "Book 20 min",
+  ctaCallLabel: "Book 30 min",
   location:
     "Remote from Mexico City, working US hours (GMT-6). On-site in NY/SF for key milestones. Paris available too.",
   stamp: "APPROVED",
