@@ -24,10 +24,26 @@ export const InkHero = () => {
     };
     window.addEventListener("pointermove", handlePointer, { passive: true });
 
+    // R3F measures the fixed canvas parent on mount; mid-hydration the layout
+    // can settle a frame late, leaving the canvas under-sized until the next
+    // resize (what toggling the browser sidebar was doing). Force a couple of
+    // resize ticks so the canvas fills the viewport from the first paint.
+    const forceResize = () => {
+      window.dispatchEvent(new Event("resize"));
+    };
+    const raf1 = requestAnimationFrame(() => {
+      forceResize();
+      requestAnimationFrame(forceResize);
+    });
+    const settle = window.setTimeout(forceResize, 250);
+    void document.fonts.ready.then(forceResize, forceResize);
+
     return () => {
       delete document.documentElement.dataset["ink3d"];
       lenis.destroy();
       window.removeEventListener("pointermove", handlePointer);
+      cancelAnimationFrame(raf1);
+      window.clearTimeout(settle);
       scrollState.paused = false;
     };
   }, []);
@@ -38,11 +54,12 @@ export const InkHero = () => {
 
   return (
     <header className="on-dark bg-ink-deep sticky top-0 z-0 h-svh">
-      <div aria-hidden="true" className="fixed inset-0">
+      <div aria-hidden="true" className="fixed inset-0 h-svh w-screen">
         <Canvas
           camera={{ fov: 40, position: [0, -0.1, 7.7] }}
           dpr={[1, 2]}
-          gl={{ antialias: false, powerPreference: "high-performance" }}
+          resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
+          gl={{ antialias: true, powerPreference: "high-performance" }}
         >
           <InkScene />
         </Canvas>

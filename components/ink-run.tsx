@@ -37,19 +37,19 @@ const EXTRACTIONS: Extraction[] = [
     id: "vendor",
     label: "vendor",
     value: "NORDWIND SUPPLY",
-    box: { left: "19%", top: "19%", width: "23%", height: "8.5%" },
+    box: { left: "23.5%", top: "21%", width: "27%", height: "5.5%" },
   },
   {
     id: "terms",
     label: "terms",
     value: "NET 30",
-    box: { left: "19%", top: "34.5%", width: "25%", height: "7.5%" },
+    box: { left: "16%", top: "31.3%", width: "16%", height: "3.6%" },
   },
   {
     id: "amount",
     label: "amount",
     value: "$48,250.00",
-    box: { left: "30%", top: "64%", width: "33%", height: "6%" },
+    box: { left: "70%", top: "49.5%", width: "15.5%", height: "3.6%" },
   },
 ];
 
@@ -137,10 +137,10 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
       {/* The document under processing. */}
       <div aria-hidden="true" className="run-invoice">
         <Image
-          src="/run-invoice.jpg"
+          src="/run-invoice-flat.jpg"
           alt=""
-          width={821}
-          height={1100}
+          width={672}
+          height={900}
           priority
           className="block h-auto w-full"
         />

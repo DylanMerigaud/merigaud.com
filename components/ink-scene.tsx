@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { Bloom, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
+import { Bloom, EffectComposer, Noise, SMAA, Vignette } from "@react-three/postprocessing";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
@@ -11,6 +11,8 @@ import { graphEdges, graphNodes, nodeById } from "@/lib/trace-graph";
 const INK_BASE = new THREE.Color("#5d7263");
 const INK_GLOW = new THREE.Color("#4cc38a");
 const FOG_COLOR = "#0a0b0d";
+// Opaque node core: the tube ends tuck into it so junctions never show a seam.
+const CORE_COLOR = new THREE.Color("#3a4a41");
 
 const VERTEX_SHADER = `
 varying vec2 vUv;
@@ -102,33 +104,44 @@ const HeroGraph = () => {
         ([x, y, z]) => new THREE.Vector3(x, y, z)
       );
       const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.35);
-      const geometry = new THREE.TubeGeometry(curve, 72, 0.016, 8, false);
+      // Dense tubular + radial segments keep the thin wire smooth under AA.
+      const geometry = new THREE.TubeGeometry(curve, 140, 0.018, 16, false);
       const { material, uniforms } = makeInkMaterial({ window: edge.draw });
       return { geometry, material, uniforms };
     });
 
+    const ringGeometry = new THREE.TorusGeometry(0.09, 0.017, 16, 72);
+    // Opaque core under each ring: the converging edge tubes tuck into it, so
+    // no open tube ends or overlap seams show at a junction.
+    const coreGeometry = new THREE.SphereGeometry(0.072, 24, 24);
     const ringMeshes = graphNodes.map((node) => {
       const inbound = graphEdges.filter((edge) => edge.to === node.id);
       const appearAt = inbound.length > 0 ? Math.min(...inbound.map((edge) => edge.draw[0])) : 0;
       const fillAt = inbound.length > 0 ? Math.max(...inbound.map((edge) => edge.draw[1])) : 0.05;
-      const geometry = new THREE.TorusGeometry(0.085, 0.016, 8, 40);
       const { material, uniforms } = makeInkMaterial({
         window: [appearAt, appearAt],
         fillAt,
         isRing: true,
       });
-      return { geometry, material, uniforms, position: node.position };
+      const coreMaterial = new THREE.MeshBasicMaterial({ color: CORE_COLOR });
+      return { material, uniforms, coreMaterial, position: node.position };
     });
 
-    return { edgeMeshes, ringMeshes };
+    return { edgeMeshes, ringGeometry, coreGeometry, ringMeshes };
   }, []);
 
   useEffect(() => {
-    const { edgeMeshes, ringMeshes } = parts;
+    const { edgeMeshes, ringGeometry, coreGeometry, ringMeshes } = parts;
     return () => {
-      for (const part of [...edgeMeshes, ...ringMeshes]) {
+      for (const part of edgeMeshes) {
         part.geometry.dispose();
         part.material.dispose();
+      }
+      ringGeometry.dispose();
+      coreGeometry.dispose();
+      for (const ring of ringMeshes) {
+        ring.material.dispose();
+        ring.coreMaterial.dispose();
       }
     };
   }, [parts]);
@@ -178,61 +191,70 @@ const HeroGraph = () => {
         <mesh key={`edge-${String(index)}`} geometry={edge.geometry} material={edge.material} />
       ))}
       {parts.ringMeshes.map((ring, index) => (
-        <mesh
-          key={`ring-${String(index)}`}
-          geometry={ring.geometry}
-          material={ring.material}
-          position={ring.position}
-        />
+        <group key={`node-${String(index)}`} position={ring.position}>
+          <mesh geometry={parts.coreGeometry} material={ring.coreMaterial} />
+          <mesh geometry={parts.ringGeometry} material={ring.material} />
+        </group>
       ))}
     </group>
   );
 };
 
 // ---------------------------------------------------------------------------
-// The spine: the trace line as a camera-locked volumetric wire, aligned with
-// the transparent gutter slit masked out of the paper sheet.
+// The spine: the trace line as a volumetric wire anchored to the document. It
+// draws itself downward at a fixed reading head as you scroll (it does not just
+// slide with the viewport); the already-inked part scrolls up with the content.
+// Section rings pop and fill as the drawing head reaches their DOM markers.
 // ---------------------------------------------------------------------------
 
 const SPINE_DEPTH = 6;
+const SPINE_LOCAL_HEIGHT = 9;
+// The screen line (fraction of viewport height) where the wire is being drawn.
+const DRAW_HEAD = 0.66;
 
 const SpineWire = () => {
   const groupRef = useRef<THREE.Group>(null);
   const tubeMeshRef = useRef<THREE.Mesh>(null);
-  const trackMeshRef = useRef<THREE.Mesh>(null);
   const ringMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
+  const coreMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const pulseTimeRef = useRef(0);
   const markerOffsetsRef = useRef<{ element: HTMLElement; ring: number }[]>([]);
   const ringFillsRef = useRef<number[]>([]);
 
   const parts = useMemo(() => {
-    // A tall, slightly wavering vertical wire; uv.x runs top to bottom.
+    // A tall, slightly wavering vertical wire; uv.x runs top (0) to bottom (1).
     const points: THREE.Vector3[] = [];
-    const height = 9;
-    for (let i = 0; i <= 24; i += 1) {
-      const t = i / 24;
+    for (let i = 0; i <= 32; i += 1) {
+      const t = i / 32;
       points.push(
-        new THREE.Vector3(Math.sin(t * 14) * 0.02, height / 2 - t * height, Math.sin(t * 9) * 0.02)
+        new THREE.Vector3(
+          Math.sin(t * 11) * 0.03,
+          SPINE_LOCAL_HEIGHT / 2 - t * SPINE_LOCAL_HEIGHT,
+          Math.sin(t * 7) * 0.03
+        )
       );
     }
-    const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.6);
-    const tubeGeometry = new THREE.TubeGeometry(curve, 96, 0.024, 8, false);
+    const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.5);
+    // Higher radial + tubular segments so the thin wire holds up under AA.
+    const tubeGeometry = new THREE.TubeGeometry(curve, 220, 0.02, 16, false);
     const tube = makeInkMaterial({ window: [0, 1] });
-    const track = makeInkMaterial({ window: [0, 1] });
-    track.uniforms.uDraw.value = 1;
-    track.uniforms.uBase.value = new THREE.Color("#26292a");
 
+    const ringGeometry = new THREE.TorusGeometry(0.075, 0.018, 16, 64);
+    // A solid core sphere sits under each ring so the tube passing through never
+    // shows an open end or a seam at the junction.
+    const coreGeometry = new THREE.SphereGeometry(0.062, 24, 24);
     const rings = Array.from({ length: 6 }, () => {
-      const geometry = new THREE.TorusGeometry(0.07, 0.02, 8, 32);
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
-      return { geometry, material: ring.material, uniforms: ring.uniforms };
+      const core = new THREE.MeshBasicMaterial({ color: CORE_COLOR });
+      return { ringMaterial: ring.material, ringUniforms: ring.uniforms, coreMaterial: core };
     });
 
     return {
       tubeGeometry,
       tubeMaterial: tube.material,
       tubeUniforms: tube.uniforms,
-      trackMaterial: track.material,
+      ringGeometry,
+      coreGeometry,
       rings,
     };
   }, []);
@@ -244,10 +266,11 @@ const SpineWire = () => {
     return () => {
       parts.tubeGeometry.dispose();
       parts.tubeMaterial.dispose();
-      parts.trackMaterial.dispose();
+      parts.ringGeometry.dispose();
+      parts.coreGeometry.dispose();
       for (const ring of parts.rings) {
-        ring.geometry.dispose();
-        ring.material.dispose();
+        ring.ringMaterial.dispose();
+        ring.coreMaterial.dispose();
       }
     };
   }, [parts]);
@@ -258,7 +281,9 @@ const SpineWire = () => {
     const camera = state.camera;
     if (!(camera instanceof THREE.PerspectiveCamera)) return;
 
-    // Lock the group to the camera, then place children in view space.
+    // The group is camera-locked so children are placed in view space, but the
+    // wire's vertical extent is pinned to document anchors so it scrolls with
+    // the page rather than floating at a fixed screen position.
     group.position.copy(camera.position);
     group.quaternion.copy(camera.quaternion);
 
@@ -270,70 +295,93 @@ const SpineWire = () => {
     // The slit center mirrors the CSS: max(2.5rem, (100vw - 72rem)/2 + 2.5rem).
     const slitPx = Math.max(40, (viewportWidth - 1152) / 2 + 40);
     const ndcX = (slitPx / viewportWidth) * 2 - 1;
+    const worldX = ndcX * halfW;
 
-    const spine = tubeMeshRef.current;
-    if (spine !== null) {
-      spine.position.set(ndcX * halfW, 0, -SPINE_DEPTH + 0.03);
-      spine.scale.setScalar((halfH * 2) / 9);
-      spine.scale.x *= 1.1;
-      spine.scale.z *= 1.1;
-    }
-    const track = trackMeshRef.current;
-    if (track !== null) {
-      track.position.set(ndcX * halfW, 0, -SPINE_DEPTH);
-      track.scale.setScalar((halfH * 2) / 9);
-      track.scale.x *= 0.7;
-      track.scale.z *= 0.7;
-    }
+    // Screen Y -> world Y in the spine plane.
+    const toWorldY = (screenY: number) => (1 - (screenY / viewportHeight) * 2) * halfH;
 
-    // The wire only exists once the sheet is over the hero.
-    const isVisible = scrollState.progress > 0.055;
+    const isVisible = scrollState.progress > 0.05;
     group.visible = isVisible;
     if (!isVisible) return;
 
+    // Anchor the wire between the top of the paper sheet and the last marker.
+    const sheet = document.querySelector<HTMLElement>("[data-sheet]");
+    const markers = markerOffsetsRef.current;
+    const lastMarker = markers.at(-1)?.element;
+    if (sheet === null || lastMarker === undefined) return;
+    const topScreenY = sheet.getBoundingClientRect().top;
+    const lastRect = lastMarker.getBoundingClientRect();
+    const bottomScreenY = lastRect.top + lastRect.height / 2;
+    const headScreenY = viewportHeight * DRAW_HEAD;
+
+    const topWorldY = toWorldY(topScreenY);
+    const bottomWorldY = toWorldY(bottomScreenY);
+    const spanWorld = topWorldY - bottomWorldY;
+
     if (!scrollState.paused) pulseTimeRef.current += delta;
-    const pulse = (pulseTimeRef.current % 5.5) / 5.5;
+    const pulse = (pulseTimeRef.current % 5) / 5;
 
-    // The ink dives in at the seam and settles at the 72% line: the wire's tip
-    // is the stamping edge the section rings cross.
-    const draw = 0.72 * span(scrollState.progress, 0.055, 0.13);
-    parts.tubeUniforms.uDraw.value = draw;
-    parts.tubeUniforms.uFill.value = 0.5;
-    parts.tubeUniforms.uPulse.value = pulse * draw;
+    // How far the drawing head has advanced down the wire (0 at sheet top, 1 at
+    // the last marker). This is anchored to the document, not to the viewport.
+    const drawFrac = clamp01((headScreenY - topScreenY) / Math.max(bottomScreenY - topScreenY, 1));
 
-    // Rings track their DOM markers and fill as the marker crosses 72svh.
-    for (const marker of markerOffsetsRef.current) {
+    const tube = tubeMeshRef.current;
+    if (tube !== null && spanWorld > 0) {
+      tube.position.set(worldX, (topWorldY + bottomWorldY) / 2, -SPINE_DEPTH);
+      tube.scale.set(1.15, spanWorld / SPINE_LOCAL_HEIGHT, 1.15);
+      parts.tubeUniforms.uDraw.value = drawFrac;
+      parts.tubeUniforms.uFill.value = 0.55;
+      parts.tubeUniforms.uPulse.value = pulse * drawFrac;
+    }
+
+    // Rings + cores ride their DOM markers; they appear only once the drawing
+    // head has reached them, then fill in.
+    for (const marker of markers) {
       const ring = ringMeshesRef.current[marker.ring];
+      const core = coreMeshesRef.current[marker.ring];
       const mesh = parts.rings[marker.ring];
       if (ring === null || ring === undefined || mesh === undefined) continue;
       const rect = marker.element.getBoundingClientRect();
       const centerY = rect.top + rect.height / 2;
-      const ndcY = 1 - (centerY / viewportHeight) * 2;
-      ring.visible = ndcY > -1.15 && ndcY < 1.15;
-      ring.position.set(ndcX * halfW, ndcY * halfH, -SPINE_DEPTH);
+      const worldY = toWorldY(centerY);
+      const isReached = centerY <= headScreenY + 4;
+      const isOnScreen = centerY > -40 && centerY < viewportHeight + 40;
+      ring.visible = isReached && isOnScreen;
+      ring.position.set(worldX, worldY, -SPINE_DEPTH + 0.01);
+      if (core !== null && core !== undefined) {
+        core.visible = isReached && isOnScreen;
+        core.position.set(worldX, worldY, -SPINE_DEPTH);
+      }
       const currentFill = ringFillsRef.current[marker.ring] ?? 0;
-      const target = centerY < viewportHeight * 0.72 ? 1 : 0;
-      const nextFill = THREE.MathUtils.damp(currentFill, target, 6, delta);
+      const target = isReached ? 1 : 0;
+      const nextFill = THREE.MathUtils.damp(currentFill, target, 7, delta);
       ringFillsRef.current[marker.ring] = nextFill;
-      mesh.uniforms.uDraw.value = 1;
-      mesh.uniforms.uFill.value = nextFill;
-      mesh.uniforms.uPulse.value = -1;
+      mesh.ringUniforms.uDraw.value = 1;
+      mesh.ringUniforms.uFill.value = nextFill;
+      mesh.ringUniforms.uPulse.value = -1;
     }
   });
 
   return (
     <group ref={groupRef}>
-      <mesh ref={trackMeshRef} geometry={parts.tubeGeometry} material={parts.trackMaterial} />
       <mesh ref={tubeMeshRef} geometry={parts.tubeGeometry} material={parts.tubeMaterial} />
       {parts.rings.map((ring, index) => (
-        <mesh
-          key={`spine-ring-${String(index)}`}
-          ref={(mesh) => {
-            ringMeshesRef.current[index] = mesh;
-          }}
-          geometry={ring.geometry}
-          material={ring.material}
-        />
+        <group key={`spine-node-${String(index)}`}>
+          <mesh
+            ref={(mesh) => {
+              coreMeshesRef.current[index] = mesh;
+            }}
+            geometry={parts.coreGeometry}
+            material={ring.coreMaterial}
+          />
+          <mesh
+            ref={(mesh) => {
+              ringMeshesRef.current[index] = mesh;
+            }}
+            geometry={parts.ringGeometry}
+            material={ring.ringMaterial}
+          />
+        </group>
       ))}
     </group>
   );
@@ -498,10 +546,13 @@ export const InkScene = () => {
       <HeroGraph />
       <SpineWire />
       <SealPress />
-      <EffectComposer multisampling={0}>
-        <Bloom intensity={0.55} luminanceThreshold={0.32} mipmapBlur />
+      {/* multisampling = WebGL2 MSAA on the geometry pass; SMAA cleans the
+          remaining edges the thin bright wire leaves after bloom. */}
+      <EffectComposer multisampling={8}>
+        <Bloom intensity={0.5} luminanceThreshold={0.34} luminanceSmoothing={0.4} mipmapBlur />
         <Vignette darkness={0.55} />
         <Noise opacity={0.045} />
+        <SMAA />
       </EffectComposer>
     </>
   );
