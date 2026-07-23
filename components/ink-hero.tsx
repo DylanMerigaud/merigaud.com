@@ -4,7 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import Lenis from "lenis";
 import { useEffect, useState } from "react";
 
-import { HeroContent } from "@/components/hero-content";
+import { InkRun } from "@/components/ink-run";
 import { InkScene } from "@/components/ink-scene";
 import { scrollState } from "@/lib/scroll-state";
 
@@ -49,13 +49,11 @@ export const InkHero = () => {
       </div>
       {/* Scroll-driven dim over the canvas as the sheet approaches. */}
       <div aria-hidden="true" data-hero-dim className="bg-ink-deep absolute inset-0 opacity-0" />
-      <HeroContent
+      <InkRun
         isPlaying={isPlaying}
         onTogglePlayback={() => {
           setIsPlaying((current) => !current);
         }}
-        pauseLabel="Pause background animation"
-        playLabel="Play background animation"
       />
     </header>
   );

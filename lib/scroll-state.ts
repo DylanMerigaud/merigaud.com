@@ -11,4 +11,6 @@ export const scrollState = {
   pointerY: 0,
   // Set by the hero pause control; freezes ambient animation.
   paused: false,
+  // One-shot routing sweep progress driven by the hero run; -1 when idle.
+  runSweep: -1,
 };

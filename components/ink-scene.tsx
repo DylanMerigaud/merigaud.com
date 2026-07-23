@@ -143,7 +143,9 @@ const HeroGraph = () => {
 
     // Ambient pulse travels the drawn routes; the pause control freezes it.
     if (!scrollState.paused) pulseTimeRef.current += delta;
-    const pulse = intro >= 1 ? (pulseTimeRef.current % 4.2) / 4.2 : -1;
+    const ambient = intro >= 1 ? (pulseTimeRef.current % 4.2) / 4.2 : -1;
+    // The hero run's routing beat takes over the pulse for one bright pass.
+    const pulse = scrollState.runSweep >= 0 ? scrollState.runSweep : ambient;
 
     for (const edge of parts.edgeMeshes) {
       edge.uniforms.uDraw.value = intro;
