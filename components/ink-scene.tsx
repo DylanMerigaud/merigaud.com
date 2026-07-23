@@ -244,18 +244,12 @@ const SpineWire = () => {
   const ringFillsRef = useRef<number[]>([]);
 
   const parts = useMemo(() => {
-    // A tall vertical wire with only the faintest waver so it stays centered in
-    // the gutter slit and never touches its edges. uv.x runs top (0) to bottom.
+    // A dead-straight vertical wire on the slit axis so every node ring stays
+    // perfectly concentric with it. uv.x runs top (0) to bottom (1).
     const points: THREE.Vector3[] = [];
     for (let i = 0; i <= 32; i += 1) {
       const t = i / 32;
-      points.push(
-        new THREE.Vector3(
-          Math.sin(t * 11) * 0.008,
-          SPINE_LOCAL_HEIGHT / 2 - t * SPINE_LOCAL_HEIGHT,
-          Math.sin(t * 7) * 0.008
-        )
-      );
+      points.push(new THREE.Vector3(0, SPINE_LOCAL_HEIGHT / 2 - t * SPINE_LOCAL_HEIGHT, 0));
     }
     const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.5);
     // Higher radial + tubular segments so the thin wire holds up under AA.
@@ -387,7 +381,9 @@ const SpineWire = () => {
       const isReached = centerY <= headScreenY + 4;
       const isOnScreen = centerY > -40 && centerY < viewportHeight + 40;
       ring.visible = isReached && isOnScreen;
-      ring.position.set(worldX, worldY, -SPINE_DEPTH + 0.01);
+      // Same depth as the tube so the off-axis slit projects them to the exact
+      // same screen X (concentric); depthTest:false keeps the node on top.
+      ring.position.set(worldX, worldY, -SPINE_DEPTH);
       if (core !== null && core !== undefined) {
         core.visible = isReached && isOnScreen;
         core.position.set(worldX, worldY, -SPINE_DEPTH);
