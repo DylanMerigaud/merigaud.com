@@ -69,7 +69,10 @@ export const Hero = () => {
     } else {
       video.pause();
     }
-  }, [isPlaying]);
+    // videoSrc is a dep so the effect re-applies play/pause after the responsive
+    // source swap remounts the <video> (autoPlay would otherwise resume a paused
+    // clip when the viewport crosses the mobile breakpoint).
+  }, [isPlaying, videoSrc]);
 
   return (
     <header className="on-dark bg-ink-deep sticky top-0 z-0 h-svh overflow-hidden">
@@ -94,10 +97,12 @@ export const Hero = () => {
       >
         <source src={videoSrc} type="video/mp4" />
       </video>
-      {/* Base scrim for headline contrast, then the scroll-driven dim. */}
+      {/* Base scrim for headline contrast, then the scroll-driven dim. Stronger
+          at top and bottom (where the text and CTAs sit) so a bright wire
+          passing behind grey copy never drops below AA. */}
       <div
         aria-hidden="true"
-        className="from-ink-deep/70 via-ink-deep/35 to-ink-deep/55 absolute inset-0 bg-gradient-to-b"
+        className="from-ink-deep/85 via-ink-deep/50 to-ink-deep/85 absolute inset-0 bg-gradient-to-b"
       />
       <div aria-hidden="true" data-hero-dim className="bg-ink-deep absolute inset-0 opacity-0" />
 

@@ -51,9 +51,9 @@ const casePages: CasePage[] = [
   },
   {
     slug: "approvals-ui",
-    metaTitle: "approvals-ui · the approval screen as shadcn components | Dylan Mérigaud",
+    metaTitle: "approvals-ui · the approval screen as shadcn components",
     metaDescription:
-      "Case study: quorum gates, amount thresholds, a policy lint that knows segregation of duties, and plain-language editing, shipped as a shadcn registry for React Flow.",
+      "Quorum gates, amount thresholds, a segregation-of-duties policy lint, and plain-language editing, shipped as a shadcn registry for React Flow.",
     intro:
       "The approval workflow screen every finance-ops product rebuilds, shipped as shadcn-style components you own: one command and the code lands in your project.",
     sections: [
@@ -90,7 +90,7 @@ const casePages: CasePage[] = [
       {
         heading: "The value is the rulebook, not the prompt",
         paragraphs: [
-          'Most AI code review for money is a single prompt that pattern-matches on "float" and calls it a day. Here the asset is 41 rules across 10 domains (ledger integrity, rounding, FX, tax, serialization, webhooks, aggregation, time), each researched against primary sources: specs, standards, tax-authority manuals, canonical engineering literature.',
+          'Most AI code review for money is a single prompt that pattern-matches on "float" and calls it a day. Here the asset is 41 rules across 10 domains, from ledger integrity and rounding to FX, tax, serialization, webhooks, aggregation, and time-handling, each researched against primary sources: specs, standards, tax-authority manuals, canonical engineering literature.',
           "Each rule carries per-language detection and fixes for TypeScript, Python, and Java, plus its own false-positive notes. Every finding then goes through an adversarial pass whose only job is to refute it; only survivors get reported, with the rule and the sources behind them.",
         ],
       },
@@ -98,7 +98,7 @@ const casePages: CasePage[] = [
         heading: "Read-only, reproducible, honest",
         paragraphs: [
           'It never edits your code, opens PRs, or files issues. "No findings" is a valid outcome; it does not force findings out of a repo that has no money code.',
-          "The eval fixture has 35 planted bugs and the scored run reports 53 findings with real rule ids and file lines; the complete report is checked into the repo, so you can read exactly what you would get before running it. It runs as a Claude Code plugin on your own session: two commands, no API key to configure.",
+          "The eval fixture seeds 35 planted bugs; a scored run surfaces 53 findings, each adversarially verified before it is shown and carrying its rule id and file line, and the complete report is checked into the repo, so you can read exactly what you would get before running it. It runs as a Claude Code plugin on your own session: two commands, no API key to configure.",
         ],
       },
     ],

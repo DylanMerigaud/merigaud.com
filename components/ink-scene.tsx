@@ -123,7 +123,15 @@ const HeroGraph = () => {
         fillAt,
         isRing: true,
       });
-      const coreMaterial = new THREE.MeshBasicMaterial({ color: CORE_COLOR });
+      // The node sits ON TOP of the wires: skip depth so the ring is never
+      // occluded by a tube's near surface at a junction.
+      material.depthTest = false;
+      material.depthWrite = false;
+      const coreMaterial = new THREE.MeshBasicMaterial({
+        color: CORE_COLOR,
+        depthTest: false,
+        depthWrite: false,
+      });
       return { material, uniforms, coreMaterial, position: node.position };
     });
 
@@ -192,8 +200,8 @@ const HeroGraph = () => {
       ))}
       {parts.ringMeshes.map((ring, index) => (
         <group key={`node-${String(index)}`} position={ring.position}>
-          <mesh geometry={parts.coreGeometry} material={ring.coreMaterial} />
-          <mesh geometry={parts.ringGeometry} material={ring.material} />
+          <mesh geometry={parts.coreGeometry} material={ring.coreMaterial} renderOrder={2} />
+          <mesh geometry={parts.ringGeometry} material={ring.material} renderOrder={3} />
         </group>
       ))}
     </group>
@@ -215,6 +223,7 @@ const DRAW_HEAD = 0.66;
 const SpineWire = () => {
   const groupRef = useRef<THREE.Group>(null);
   const tubeMeshRef = useRef<THREE.Mesh>(null);
+  const trackMeshRef = useRef<THREE.Mesh>(null);
   const ringMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const coreMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const pulseTimeRef = useRef(0);
@@ -222,15 +231,16 @@ const SpineWire = () => {
   const ringFillsRef = useRef<number[]>([]);
 
   const parts = useMemo(() => {
-    // A tall, slightly wavering vertical wire; uv.x runs top (0) to bottom (1).
+    // A tall vertical wire with only the faintest waver so it stays centered in
+    // the gutter slit and never touches its edges. uv.x runs top (0) to bottom.
     const points: THREE.Vector3[] = [];
     for (let i = 0; i <= 32; i += 1) {
       const t = i / 32;
       points.push(
         new THREE.Vector3(
-          Math.sin(t * 11) * 0.03,
+          Math.sin(t * 11) * 0.008,
           SPINE_LOCAL_HEIGHT / 2 - t * SPINE_LOCAL_HEIGHT,
-          Math.sin(t * 7) * 0.03
+          Math.sin(t * 7) * 0.008
         )
       );
     }
@@ -238,6 +248,11 @@ const SpineWire = () => {
     // Higher radial + tubular segments so the thin wire holds up under AA.
     const tubeGeometry = new THREE.TubeGeometry(curve, 220, 0.02, 16, false);
     const tube = makeInkMaterial({ window: [0, 1] });
+    // The full path shows as a dim grey track (where the ink will go); the green
+    // ink fills along it up to the drawing head as you scroll.
+    const track = makeInkMaterial({ window: [0, 1] });
+    track.uniforms.uDraw.value = 1;
+    track.uniforms.uBase.value = new THREE.Color("#3f4c45");
 
     const ringGeometry = new THREE.TorusGeometry(0.075, 0.018, 16, 64);
     // A solid core sphere sits under each ring so the tube passing through never
@@ -245,7 +260,14 @@ const SpineWire = () => {
     const coreGeometry = new THREE.SphereGeometry(0.062, 24, 24);
     const rings = Array.from({ length: 6 }, () => {
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
-      const core = new THREE.MeshBasicMaterial({ color: CORE_COLOR });
+      // Node draws over the wire it rides, never occluded by the tube surface.
+      ring.material.depthTest = false;
+      ring.material.depthWrite = false;
+      const core = new THREE.MeshBasicMaterial({
+        color: CORE_COLOR,
+        depthTest: false,
+        depthWrite: false,
+      });
       return { ringMaterial: ring.material, ringUniforms: ring.uniforms, coreMaterial: core };
     });
 
@@ -253,6 +275,7 @@ const SpineWire = () => {
       tubeGeometry,
       tubeMaterial: tube.material,
       tubeUniforms: tube.uniforms,
+      trackMaterial: track.material,
       ringGeometry,
       coreGeometry,
       rings,
@@ -266,6 +289,7 @@ const SpineWire = () => {
     return () => {
       parts.tubeGeometry.dispose();
       parts.tubeMaterial.dispose();
+      parts.trackMaterial.dispose();
       parts.ringGeometry.dispose();
       parts.coreGeometry.dispose();
       for (const ring of parts.rings) {
@@ -326,12 +350,29 @@ const SpineWire = () => {
     const drawFrac = clamp01((headScreenY - topScreenY) / Math.max(bottomScreenY - topScreenY, 1));
 
     const tube = tubeMeshRef.current;
+    const track = trackMeshRef.current;
     if (tube !== null && spanWorld > 0) {
-      tube.position.set(worldX, (topWorldY + bottomWorldY) / 2, -SPINE_DEPTH);
-      tube.scale.set(1.15, spanWorld / SPINE_LOCAL_HEIGHT, 1.15);
+      const midY = (topWorldY + bottomWorldY) / 2;
+      const scaleY = spanWorld / SPINE_LOCAL_HEIGHT;
+      // The green ink is anchored top-of-sheet to the last node and fills to the
+      // head; it completes exactly at the approve node.
+      tube.position.set(worldX, midY, -SPINE_DEPTH);
+      tube.scale.set(1.15, scaleY, 1.15);
       parts.tubeUniforms.uDraw.value = drawFrac;
       parts.tubeUniforms.uFill.value = 0.55;
       parts.tubeUniforms.uPulse.value = pulse * drawFrac;
+    }
+    // The grey track runs the full page (sheet top to the very bottom) behind the
+    // ink, so the gutter slit always shows a wire instead of empty black.
+    if (track !== null) {
+      const end = document.querySelector<HTMLElement>("[data-spine-end]");
+      const endScreenY = end === null ? bottomScreenY : end.getBoundingClientRect().top;
+      const endWorldY = toWorldY(endScreenY);
+      const trackSpan = topWorldY - endWorldY;
+      if (trackSpan > 0) {
+        track.position.set(worldX, (topWorldY + endWorldY) / 2, -SPINE_DEPTH - 0.03);
+        track.scale.set(1.05, trackSpan / SPINE_LOCAL_HEIGHT, 1.05);
+      }
     }
 
     // Rings + cores ride their DOM markers; they appear only once the drawing
@@ -364,6 +405,7 @@ const SpineWire = () => {
 
   return (
     <group ref={groupRef}>
+      <mesh ref={trackMeshRef} geometry={parts.tubeGeometry} material={parts.trackMaterial} />
       <mesh ref={tubeMeshRef} geometry={parts.tubeGeometry} material={parts.tubeMaterial} />
       {parts.rings.map((ring, index) => (
         <group key={`spine-node-${String(index)}`}>
@@ -373,6 +415,7 @@ const SpineWire = () => {
             }}
             geometry={parts.coreGeometry}
             material={ring.coreMaterial}
+            renderOrder={2}
           />
           <mesh
             ref={(mesh) => {
@@ -380,6 +423,7 @@ const SpineWire = () => {
             }}
             geometry={parts.ringGeometry}
             material={ring.ringMaterial}
+            renderOrder={3}
           />
         </group>
       ))}
@@ -547,8 +591,9 @@ export const InkScene = () => {
       <SpineWire />
       <SealPress />
       {/* multisampling = WebGL2 MSAA on the geometry pass; SMAA cleans the
-          remaining edges the thin bright wire leaves after bloom. */}
-      <EffectComposer multisampling={8}>
+          remaining edges the thin bright wire leaves after bloom. 4x MSAA is
+          plenty next to SMAA, half the cost of the 8x default. */}
+      <EffectComposer multisampling={4}>
         <Bloom intensity={0.5} luminanceThreshold={0.34} luminanceSmoothing={0.4} mipmapBlur />
         <Vignette darkness={0.55} />
         <Noise opacity={0.045} />

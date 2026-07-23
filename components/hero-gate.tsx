@@ -4,6 +4,16 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 import { Hero } from "@/components/hero";
+import { HeroContent } from "@/components/hero-content";
+
+// A dark, media-free hero shell. It is the SSR/no-JS baseline (real headline and
+// CTAs for SEO) and the loading state while the ink3d chunk arrives, so the page
+// never flashes a poster image before the WebGL scene or the video takes over.
+const HeroShell = () => (
+  <header className="on-dark bg-ink-deep sticky top-0 z-0 h-svh overflow-hidden">
+    <HeroContent showControls={false} />
+  </header>
+);
 
 const InkHero = dynamic(
   async () => {
@@ -12,7 +22,7 @@ const InkHero = dynamic(
   },
   {
     ssr: false,
-    loading: () => <Hero />,
+    loading: () => <HeroShell />,
   }
 );
 
@@ -26,14 +36,13 @@ const hasWebgl = (): boolean => {
 };
 
 // Decides the hero once, on the client: desktop + WebGL2 + motion-ok gets the
-// ink3d experience; everyone else keeps the video hero (SSR default).
+// ink3d experience; everyone else gets the video hero. Until decided, the dark
+// shell shows (SSR default), so no poster image ever flashes.
 export const HeroGate = () => {
-  const [mode, setMode] = useState<"video" | "ink">("video");
+  const [mode, setMode] = useState<"shell" | "video" | "ink">("shell");
 
   useEffect(() => {
-    // Deferred one tick: the upgrade must not set state synchronously in the
-    // effect, and the video hero is a correct first paint anyway.
-    const timer = window.setTimeout(() => {
+    const decide = () => {
       const isWantsMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const isDesktop = window.matchMedia("(min-width: 768px)").matches;
       const connection: unknown = Reflect.get(navigator, "connection");
@@ -43,13 +52,20 @@ export const HeroGate = () => {
         "saveData" in connection &&
         connection.saveData === true;
       if (isWantsMotion && isDesktop && !isSavesData && hasWebgl()) {
+        // Warm the chunk so the shell-to-ink handoff is a single frame.
+        void import("@/components/ink-hero");
         setMode("ink");
+      } else {
+        setMode("video");
       }
-    }, 0);
+    };
+    const timer = window.setTimeout(decide, 0);
     return () => {
       window.clearTimeout(timer);
     };
   }, []);
 
-  return mode === "ink" ? <InkHero /> : <Hero />;
+  if (mode === "ink") return <InkHero />;
+  if (mode === "video") return <Hero />;
+  return <HeroShell />;
 };

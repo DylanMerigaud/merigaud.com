@@ -24,6 +24,9 @@ export default function Page() {
         <ExperienceSection />
         <ApproachSection />
         <ContactSection />
+        {/* Anchors the grey trace track to the page bottom so the gutter slit is
+            never an empty black bar below the last node. */}
+        <div aria-hidden="true" data-spine-end className="h-px w-full" />
       </main>
       <TraceEffects />
     </>

@@ -30,6 +30,8 @@ type Extraction = {
   value: string;
   // Field rect on the invoice image, in percent.
   box: { left: string; top: string; width: string; height: string };
+  // Bottom-most field puts its chip below the box so it never covers a row.
+  labelBelow?: boolean;
 };
 
 const EXTRACTIONS: Extraction[] = [
@@ -43,13 +45,14 @@ const EXTRACTIONS: Extraction[] = [
     id: "terms",
     label: "terms",
     value: "NET 30",
-    box: { left: "16%", top: "31.3%", width: "16%", height: "3.6%" },
+    box: { left: "16%", top: "31.3%", width: "18.5%", height: "3.6%" },
   },
   {
     id: "amount",
     label: "amount",
     value: "$48,250.00",
-    box: { left: "70%", top: "49.5%", width: "15.5%", height: "3.6%" },
+    box: { left: "68.5%", top: "49.5%", width: "18.5%", height: "3.6%" },
+    labelBelow: true,
   },
 ];
 
@@ -66,6 +69,10 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
   const skippedRef = useRef(false);
   const playingRef = useRef(isPlaying);
   playingRef.current = isPlaying;
+  // Set by the effect; lets onReplay restart the rAF loop after it has quiesced.
+  const restartRef = useRef<() => void>(() => {
+    // replaced by the effect
+  });
 
   useEffect(() => {
     const skip = () => {
@@ -112,9 +119,17 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
           setIsSkipped(true);
         }
       }
+      // Only keep pumping while the run is active; once skipped/finished the
+      // loop quiesces instead of spinning the main thread idle forever.
+      if (!skippedRef.current) raf = window.requestAnimationFrame(frame);
+    };
+    const start = () => {
+      last = performance.now();
+      window.cancelAnimationFrame(raf);
       raf = window.requestAnimationFrame(frame);
     };
-    raf = window.requestAnimationFrame(frame);
+    restartRef.current = start;
+    start();
 
     return () => {
       window.cancelAnimationFrame(raf);
@@ -149,6 +164,7 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
           <div
             key={extraction.id}
             className="run-box"
+            {...(extraction.labelBelow === true ? { "data-label-below": "" } : {})}
             style={{ ...extraction.box, animationDelay: `${String(index * 0.18)}s` }}
           >
             <span className="run-box-label eyebrow">{extraction.label}</span>

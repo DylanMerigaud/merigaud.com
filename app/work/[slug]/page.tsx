@@ -40,7 +40,7 @@ const CaseStudyPage = async ({ params }: PageParams) => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Dylan Mérigaud", item: site.url },
+      { "@type": "ListItem", position: 1, name: "the trace", item: `${site.url}/#work` },
       { "@type": "ListItem", position: 2, name: item.title, item: `${site.url}/work/${slug}` },
     ],
   };

@@ -57,7 +57,7 @@ export type WorkItem = {
 export const workSection = {
   eyebrow: "the trace",
   heading: "Selected work",
-  intro: "Three public reference systems. Every demo is live; every repo is open.",
+  intro: "Three public reference systems. Live where a browser can show it, every repo open.",
 } as const;
 
 export const work: WorkItem[] = [
@@ -119,7 +119,7 @@ export const work: WorkItem[] = [
     title: "fintech-roast",
     lead: "An agent that roasts the code that touches money.",
     body: [
-      "A rulebook of 41 researched rules across 10 domains, applied per-language to TypeScript, Python, and Java, with every finding adversarially verified before it is reported. Read-only: it never edits your code. 53 findings on the planted-bug fixture. Run it on your own repo in two commands.",
+      "A rulebook of 41 researched rules across 10 domains, from ledger integrity and rounding to FX, tax, webhooks, and time, applied per-language to TypeScript, Python, and Java, with every finding adversarially verified before it is reported. Read-only: it never edits your code. Run it on your own repo in two commands.",
     ],
     links: [
       { label: "Case study", href: "/work/fintech-roast" },
@@ -159,7 +159,7 @@ export const experience = {
   rows: [
     {
       label: "Pivot · procurement fintech, Paris",
-      text: "Shipped the PO approval flow and the NetSuite integration. Cut client onboarding time by 90%.",
+      text: "Shipped the PO approval flow and the NetSuite integration. Cut client onboarding time ~90% by automating the approval setup.",
     },
     {
       label: "Neige · founder",
@@ -235,7 +235,7 @@ export const jsonLd = {
         alternateName: "Dylan Merigaud",
         jobTitle: "Freelance AI Full-Stack Engineer",
         url: site.url,
-        image: `${site.url}/og.jpg`,
+        image: `${site.url}/avatar.jpg`,
         email: `mailto:${site.email}`,
         knowsAbout: [
           "AI integration",
@@ -260,8 +260,10 @@ export const jsonLd = {
     },
     {
       "@type": "WebSite",
+      "@id": `${site.url}/#website`,
       name: "Dylan Mérigaud",
       url: site.url,
+      about: { "@id": `${site.url}/#person` },
     },
   ],
 } as const;

@@ -48,7 +48,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
         href="#work"
         className="bg-paper text-ink sr-only z-50 rounded-md px-4 py-2 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
       >
-        Skip to content
+        Skip to work
       </a>
       {children}
       <Analytics />

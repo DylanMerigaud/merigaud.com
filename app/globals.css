@@ -199,14 +199,31 @@ body {
   transform: scale(1.01);
 }
 
-.figure-badge {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background-color: rgb(10 11 13 / 0.72);
-  color: var(--color-stamp-dark);
+/* A small live-pulse in the caption marks the video figures (no overlay badge
+   that would collide with the demo's own UI). */
+.figure-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background-color: var(--color-stamp);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-stamp) 60%, transparent);
+  animation: live-pulse 2s ease-out infinite;
+}
+
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-stamp) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figure-live {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -232,13 +249,15 @@ html[data-ink3d] .trace-node {
 @media (min-width: 768px) {
   html[data-ink3d] .sheet {
     --slit-x: max(2.5rem, calc((100vw - 72rem) / 2 + 2.5rem));
+    /* Just wide enough to hold the node ring and its bloom, no wider, so the
+       channel reads as a slot for the wire, not a broad black bar. */
     mask-image: linear-gradient(
       to right,
       black 0,
-      black calc(var(--slit-x) - 13px),
-      transparent calc(var(--slit-x) - 13px),
-      transparent calc(var(--slit-x) + 15px),
-      black calc(var(--slit-x) + 15px)
+      black calc(var(--slit-x) - 15px),
+      transparent calc(var(--slit-x) - 15px),
+      transparent calc(var(--slit-x) + 17px),
+      black calc(var(--slit-x) + 17px)
     );
   }
 }
@@ -415,6 +434,13 @@ html[data-ink3d] .trace-node {
   background: rgb(10 11 13 / 0.8);
   padding: 0.1rem 0.4rem;
   border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Bottom-most field: chip sits BELOW the box so it never covers a data row. */
+.run-box[data-label-below] .run-box-label {
+  top: auto;
+  bottom: -1.5rem;
 }
 
 .run-receipt {

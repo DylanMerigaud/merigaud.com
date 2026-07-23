@@ -28,21 +28,26 @@ export const InkHero = () => {
     // can settle a frame late, leaving the canvas under-sized until the next
     // resize (what toggling the browser sidebar was doing). Force a couple of
     // resize ticks so the canvas fills the viewport from the first paint.
+    let isCancelled = false;
+    let raf2 = 0;
     const forceResize = () => {
+      if (isCancelled) return;
       window.dispatchEvent(new Event("resize"));
     };
     const raf1 = requestAnimationFrame(() => {
       forceResize();
-      requestAnimationFrame(forceResize);
+      raf2 = requestAnimationFrame(forceResize);
     });
     const settle = window.setTimeout(forceResize, 250);
     void document.fonts.ready.then(forceResize, forceResize);
 
     return () => {
+      isCancelled = true;
       delete document.documentElement.dataset["ink3d"];
       lenis.destroy();
       window.removeEventListener("pointermove", handlePointer);
       cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
       window.clearTimeout(settle);
       scrollState.paused = false;
     };

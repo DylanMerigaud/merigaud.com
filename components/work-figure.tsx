@@ -16,27 +16,25 @@ export const WorkFigure = ({ figure }: { figure: WorkItem["figure"] }) => (
           className="block w-full"
         />
       ) : (
-        <>
-          <video
-            data-figure
-            loop
-            muted
-            playsInline
-            preload="none"
-            poster={figure.poster}
-            width={figure.width}
-            height={figure.height}
-            className="block w-full"
-            aria-label={figure.alt}
-          >
-            <source src={figure.src} type="video/mp4" />
-          </video>
-          <span aria-hidden="true" className="figure-badge eyebrow">
-            live run
-          </span>
-        </>
+        <video
+          data-figure
+          loop
+          muted
+          playsInline
+          preload="none"
+          poster={figure.poster}
+          width={figure.width}
+          height={figure.height}
+          className="block w-full"
+          aria-label={figure.alt}
+        >
+          <source src={figure.src} type="video/mp4" />
+        </video>
       )}
     </div>
-    <figcaption className="eyebrow text-trace mt-3">{figure.caption}</figcaption>
+    <figcaption className="eyebrow text-trace mt-3 flex items-center gap-2">
+      {figure.kind === "video" ? <span aria-hidden="true" className="figure-live" /> : null}
+      {figure.caption}
+    </figcaption>
   </figure>
 );
