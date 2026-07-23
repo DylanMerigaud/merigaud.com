@@ -240,6 +240,7 @@ const SpineWire = () => {
   const ringMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const coreMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const pulseTimeRef = useRef(0);
+  const drawFracRef = useRef(0);
   const markerOffsetsRef = useRef<{ element: HTMLElement; ring: number }[]>([]);
   const ringFillsRef = useRef<number[]>([]);
   // Cached once (not queried per frame): the sheet top and page-bottom anchors.
@@ -275,6 +276,10 @@ const SpineWire = () => {
         : Math.max(document.querySelectorAll("[data-node]").length, 1);
     const rings = Array.from({ length: markerCount }, () => {
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
+      // Grey by default (same as the track ahead of the ink); the fill uniform
+      // lights it green as the drawing head reaches it. It is a node ON the wire,
+      // not a green marker sitting on grey.
+      ring.uniforms.uBase.value = new THREE.Color("#3f4c45");
       // Node draws over the wire it rides, never occluded by the tube surface.
       ring.material.depthTest = false;
       ring.material.depthWrite = false;
@@ -367,7 +372,11 @@ const SpineWire = () => {
     const pageSpan = Math.max(endScreenY - topScreenY, 1);
     const headUv = clamp01((headScreenY - topScreenY) / pageSpan);
     const approveUv = clamp01((bottomScreenY - topScreenY) / pageSpan);
-    const drawFrac = Math.min(headUv, approveUv);
+    const targetDrawFrac = Math.min(headUv, approveUv);
+    // Inertia: the ink flows to catch the scroll position instead of snapping to
+    // it, so the fill has the same liquid feel as the hero graph drawing on.
+    drawFracRef.current = THREE.MathUtils.damp(drawFracRef.current, targetDrawFrac, 5, delta);
+    const drawFrac = drawFracRef.current;
     const fullSpanWorld = topWorldY - endWorldY;
 
     const tube = tubeMeshRef.current;
@@ -375,12 +384,14 @@ const SpineWire = () => {
       tube.position.set(worldX, (topWorldY + endWorldY) / 2, -SPINE_DEPTH);
       tube.scale.set(1.15, fullSpanWorld / SPINE_LOCAL_HEIGHT, 1.15);
       parts.tubeUniforms.uDraw.value = drawFrac;
-      parts.tubeUniforms.uFill.value = 0.55;
+      parts.tubeUniforms.uFill.value = 0.7;
       parts.tubeUniforms.uPulse.value = pulse * drawFrac;
     }
 
-    // Rings + cores ride their DOM markers; they appear only once the drawing
-    // head has reached them, then fill in.
+    // Rings ride their DOM markers. They show grey (part of the track) as soon
+    // as they are on screen, and light green exactly when the flowing ink (with
+    // its inertia) reaches their position on the wire, so a node is never green
+    // by default.
     for (const marker of markers) {
       const ring = ringMeshesRef.current[marker.ring];
       const core = coreMeshesRef.current[marker.ring];
@@ -389,19 +400,20 @@ const SpineWire = () => {
       const rect = marker.element.getBoundingClientRect();
       const centerY = rect.top + rect.height / 2;
       const worldY = toWorldY(centerY);
-      const isReached = centerY <= headScreenY + 4;
+      const ringUv = clamp01((centerY - topScreenY) / pageSpan);
       const isOnScreen = centerY > -40 && centerY < viewportHeight + 40;
-      ring.visible = isReached && isOnScreen;
+      ring.visible = isOnScreen;
       // Same depth as the tube so the off-axis slit projects them to the exact
       // same screen X (concentric); depthTest:false keeps the node on top.
       ring.position.set(worldX, worldY, -SPINE_DEPTH);
       if (core !== null && core !== undefined) {
-        core.visible = isReached && isOnScreen;
+        core.visible = isOnScreen;
         core.position.set(worldX, worldY, -SPINE_DEPTH);
       }
       const currentFill = ringFillsRef.current[marker.ring] ?? 0;
-      const target = isReached ? 1 : 0;
-      const nextFill = THREE.MathUtils.damp(currentFill, target, 7, delta);
+      // Filled once the drawn ink has flowed past this ring's position.
+      const target = ringUv <= drawFrac ? 1 : 0;
+      const nextFill = THREE.MathUtils.damp(currentFill, target, 8, delta);
       ringFillsRef.current[marker.ring] = nextFill;
       mesh.ringUniforms.uDraw.value = 1;
       mesh.ringUniforms.uFill.value = nextFill;
