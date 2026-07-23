@@ -384,7 +384,7 @@ const SpineWire = () => {
       tube.position.set(worldX, (topWorldY + endWorldY) / 2, -SPINE_DEPTH);
       tube.scale.set(1.15, fullSpanWorld / SPINE_LOCAL_HEIGHT, 1.15);
       parts.tubeUniforms.uDraw.value = drawFrac;
-      parts.tubeUniforms.uFill.value = 0.7;
+      parts.tubeUniforms.uFill.value = 0.85;
       parts.tubeUniforms.uPulse.value = pulse * drawFrac;
     }
 
@@ -613,8 +613,10 @@ export const InkScene = () => {
           Noise pass, so the composer does not redraw the full screen every frame
           just for texture. */}
       <EffectComposer multisampling={4}>
-        <Bloom intensity={0.5} luminanceThreshold={0.34} luminanceSmoothing={0.4} mipmapBlur />
-        <Vignette darkness={0.55} />
+        <Bloom intensity={0.5} luminanceThreshold={0.3} luminanceSmoothing={0.4} mipmapBlur />
+        {/* Light vignette only: a strong one darkened the wire toward the top and
+            bottom of the viewport, so the green shifted with scroll position. */}
+        <Vignette darkness={0.25} />
         <SMAA />
       </EffectComposer>
     </>
