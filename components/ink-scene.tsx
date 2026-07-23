@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { Bloom, EffectComposer, Noise, SMAA, Vignette } from "@react-three/postprocessing";
+import { Bloom, EffectComposer, SMAA, Vignette } from "@react-three/postprocessing";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
@@ -242,6 +242,9 @@ const SpineWire = () => {
   const pulseTimeRef = useRef(0);
   const markerOffsetsRef = useRef<{ element: HTMLElement; ring: number }[]>([]);
   const ringFillsRef = useRef<number[]>([]);
+  // Cached once (not queried per frame): the sheet top and page-bottom anchors.
+  const sheetElRef = useRef<HTMLElement | null>(null);
+  const spineEndElRef = useRef<HTMLElement | null>(null);
 
   const parts = useMemo(() => {
     // A dead-straight vertical wire on the slit axis so every node ring stays
@@ -264,7 +267,13 @@ const SpineWire = () => {
     // A solid core sphere sits under each ring so the tube passing through never
     // shows an open end or a seam at the junction.
     const coreGeometry = new THREE.SphereGeometry(0.05, 24, 24);
-    const rings = Array.from({ length: 6 }, () => {
+    // One ring per DOM section marker (ink3d mounts client-side after the page
+    // renders, so the markers exist); a small floor covers any race.
+    const markerCount =
+      typeof document === "undefined"
+        ? 8
+        : Math.max(document.querySelectorAll("[data-node]").length, 1);
+    const rings = Array.from({ length: markerCount }, () => {
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
       // Node draws over the wire it rides, never occluded by the tube surface.
       ring.material.depthTest = false;
@@ -291,6 +300,8 @@ const SpineWire = () => {
     const markers = [...document.querySelectorAll<HTMLElement>("[data-node]")];
     markerOffsetsRef.current = markers.map((element, index) => ({ element, ring: index }));
     ringFillsRef.current = markers.map(() => 0);
+    sheetElRef.current = document.querySelector<HTMLElement>("[data-sheet]");
+    spineEndElRef.current = document.querySelector<HTMLElement>("[data-spine-end]");
     return () => {
       parts.tubeGeometry.dispose();
       parts.tubeMaterial.dispose();
@@ -333,7 +344,7 @@ const SpineWire = () => {
     if (!isVisible) return;
 
     // Anchor the wire between the top of the paper sheet and the last marker.
-    const sheet = document.querySelector<HTMLElement>("[data-sheet]");
+    const sheet = sheetElRef.current;
     const markers = markerOffsetsRef.current;
     const lastMarker = markers.at(-1)?.element;
     if (sheet === null || lastMarker === undefined) return;
@@ -350,7 +361,7 @@ const SpineWire = () => {
     // One tube spans the whole page (sheet top to the very bottom). The green ink
     // fills to the reading head but never past the approve node, and the rest of
     // the tube shows its grey track, so the gutter always holds a single wire.
-    const end = document.querySelector<HTMLElement>("[data-spine-end]");
+    const end = spineEndElRef.current;
     const endScreenY = end === null ? bottomScreenY : end.getBoundingClientRect().top;
     const endWorldY = toWorldY(endScreenY);
     const pageSpan = Math.max(endScreenY - topScreenY, 1);
@@ -585,12 +596,13 @@ export const InkScene = () => {
       <SpineWire />
       <SealPress />
       {/* multisampling = WebGL2 MSAA on the geometry pass; SMAA cleans the
-          remaining edges the thin bright wire leaves after bloom. 4x MSAA is
-          plenty next to SMAA, half the cost of the 8x default. */}
+          remaining edges the thin bright wire leaves after bloom. The film grain
+          is a static CSS overlay in ink-hero (see .ink-grain), not a per-frame
+          Noise pass, so the composer does not redraw the full screen every frame
+          just for texture. */}
       <EffectComposer multisampling={4}>
         <Bloom intensity={0.5} luminanceThreshold={0.34} luminanceSmoothing={0.4} mipmapBlur />
         <Vignette darkness={0.55} />
-        <Noise opacity={0.045} />
         <SMAA />
       </EffectComposer>
     </>

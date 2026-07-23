@@ -1,5 +1,6 @@
 import { ApproachSection } from "@/components/approach-section";
 import { ContactSection } from "@/components/contact-section";
+import { EngagementSection } from "@/components/engagement-section";
 import { ExperienceSection } from "@/components/experience-section";
 import { HeroGate } from "@/components/hero-gate";
 import { TraceEffects } from "@/components/trace-effects";
@@ -23,6 +24,7 @@ export default function Page() {
         <WorkSection />
         <ExperienceSection />
         <ApproachSection />
+        <EngagementSection />
         <ContactSection />
         {/* Anchors the grey trace track to the page bottom so the gutter slit is
             never an empty black bar below the last node. */}

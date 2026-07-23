@@ -115,7 +115,9 @@ export const TraceEffects = () => {
         // The sticky hero text leaves before the sheet (and its slit) covers it.
         const fade = 1 - Math.min(Math.max((scrollState.hero - 0.2) / 0.3, 0), 1);
         heroFade.style.opacity = String(fade);
-        heroFade.style.pointerEvents = fade < 0.1 ? "none" : "";
+        // Once faded out it is behind the opaque sheet: inert removes its links
+        // and controls from the tab order and the a11y tree, not just the mouse.
+        heroFade.inert = fade < 0.1;
       }
       if (spineFill !== null && spine !== null) {
         const rect = spine.getBoundingClientRect();

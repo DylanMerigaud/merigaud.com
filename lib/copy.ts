@@ -193,9 +193,31 @@ export const approach = {
   ],
 } as const;
 
+export const engagement = {
+  stage: "scope",
+  index: "06",
+  eyebrow: "how we start",
+  heading: "Work with me",
+  rows: [
+    {
+      title: "Start with a paid pilot.",
+      body: "One scoped problem, a fixed one to three week sprint, a deliverable you run in your own repo. Low risk for you, fast proof for both of us. It grows into a larger build or it doesn't, and either way the work is yours to keep.",
+    },
+    {
+      title: "A bridge while you hire.",
+      body: "A senior hire takes months to land. I ship the AI piece that can't wait now, on a defined scope, while you run the search. The contract ends whenever you want it to. Open to a permanent role later if it clicks on both sides.",
+    },
+    {
+      title: "Available now.",
+      body: "Remote from Mexico City (GMT-6, full overlap with US hours), on-site in NY or SF for key milestones, Paris too. Fixed-scope pilots and two to four week builds.",
+    },
+  ],
+  pricing: "Pilots and builds are fixed-price, hourly for open-ended work, rates on the call.",
+} as const;
+
 export const contact = {
   stage: "approve",
-  index: "06",
+  index: "07",
   eyebrow: "let's talk",
   heading: "Building AI into a fintech product? Let's talk.",
   ctaEmailLabel: "dylan@merigaud.com",

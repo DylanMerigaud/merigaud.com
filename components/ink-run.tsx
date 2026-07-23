@@ -87,10 +87,8 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
     window.addEventListener("wheel", skip, { passive: true });
     window.addEventListener("touchstart", skip, { passive: true });
     window.addEventListener("keydown", skip);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      // Jump straight to the settled state on the first frame.
-      elapsedRef.current = RUN_END + 2;
-    }
+    // No reduced-motion handling here: the gate routes reduced-motion visitors to
+    // the video hero, so InkRun only ever mounts when motion is allowed.
 
     let raf = 0;
     let last = performance.now();

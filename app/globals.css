@@ -53,6 +53,12 @@ body {
 
 /* ---------- hero ---------- */
 
+/* The hero DOM sits over the video/WebGL layer; give the small mono text a
+   shadow so it holds contrast where the bright graph passes behind it. */
+[data-hero-fade] .eyebrow {
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.6);
+}
+
 .h1-display {
   font-size: clamp(2.5rem, 10vw, 9.5rem);
   line-height: 0.98;
@@ -161,6 +167,14 @@ body {
 .on-dark .trace-node {
   background-color: var(--color-ink-deep);
   box-shadow: 0 0 0 4px var(--color-ink-deep);
+}
+
+/* On mobile the DOM spine line is hidden, so the node dots would float as
+   orphans; hide them too (the mono section eyebrow still carries the stage). */
+@media (max-width: 767px) {
+  .trace-node {
+    display: none;
+  }
 }
 
 .trace-node.is-filled {
@@ -372,12 +386,12 @@ html[data-ink3d] .trace-node {
   transform: translateY(-50%) rotate(0.5deg);
 }
 
+/* The processed invoice leaves entirely once the run settles: it was reading as
+   a stray low-opacity layer behind the hero paragraph. The bottom-right receipt
+   (vendor / amount / APPROVED) carries the "it was processed" story instead. */
 .run.rp6 .run-invoice {
-  opacity: 0.07;
-  left: 3%;
-  top: 64%;
-  width: min(20vw, 16rem);
-  transform: translateY(-30%) rotate(-5deg) scale(0.95);
+  opacity: 0;
+  transform: translateY(-30%) scale(0.95);
 }
 
 .run-scan {
@@ -616,4 +630,53 @@ html[data-ink3d] .trace-node {
   transition: none;
   opacity: 1;
   transform: none;
+}
+
+/* Static film grain over the ink3d canvas (see ink-hero). Cheap texture that
+   replaces the per-frame WebGL Noise pass. */
+.ink-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Figure media: crop the desktop screenshots to a legible detail on mobile
+   instead of shrinking the whole two-panel UI to an unreadable smear. */
+.figure-media {
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  .figure-media {
+    height: 15rem;
+    object-fit: cover;
+    object-position: top left;
+  }
+}
+
+.figure-pause {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.6rem;
+  min-height: 2rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: rgb(10 11 13 / 0.72);
+  color: var(--color-paper);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.figure-card:hover .figure-pause,
+.figure-pause:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .figure-pause {
+    opacity: 1;
+  }
 }

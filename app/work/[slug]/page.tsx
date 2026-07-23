@@ -67,39 +67,64 @@ const CaseStudyPage = async ({ params }: PageParams) => {
         <p className="text-ink/90 mt-4 max-w-2xl text-xl leading-snug font-medium">{item.lead}</p>
         <p className="text-ink/75 mt-4 max-w-2xl leading-relaxed">{page.intro}</p>
 
-        <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+        <ul className="mt-8 flex flex-wrap items-center gap-4">
           {item.links
             .filter((link) => !link.href.startsWith("/work"))
-            .map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+            .map((link, index) =>
+              index === 0 && /demo|playground/i.test(link.label) ? (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="link-arrow bg-stamp hover:bg-stamp/85 inline-flex min-h-11 items-center rounded-md px-5 py-2.5 font-medium text-white transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ) : (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              )
+            )}
         </ul>
 
-        <div className="mt-12 max-w-4xl">
-          <WorkFigure figure={item.figure} />
-        </div>
-
-        <div className="mt-16 max-w-2xl space-y-12">
-          {page.sections.map((section) => (
-            <section key={section.heading}>
-              <h2 className="text-2xl font-semibold tracking-tight">{section.heading}</h2>
-              {section.paragraphs.map((paragraph) => (
-                <p key={paragraph.slice(0, 32)} className="text-ink/75 mt-4 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
-            </section>
+        {/* Spec strip: hard, checkable facts up top for a scanning CTO. */}
+        <dl className="border-ink/15 divide-ink/15 mt-12 grid max-w-3xl grid-cols-3 divide-x border-y">
+          {page.specs.map((spec) => (
+            <div key={spec.label} className="px-5 py-4 first:pl-0">
+              <dt className="eyebrow text-trace">{spec.label}</dt>
+              <dd className="mt-1 text-lg font-semibold tracking-tight">{spec.value}</dd>
+            </div>
           ))}
+        </dl>
+
+        {/* Text left, figure sticky right so the empty column carries evidence. */}
+        <div className="mt-16 lg:grid lg:grid-cols-12 lg:gap-12">
+          <div className="space-y-12 lg:col-span-7">
+            {page.sections.map((section) => (
+              <section key={section.heading} className="max-w-[62ch]">
+                <h2 className="text-2xl font-semibold tracking-tight">{section.heading}</h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph.slice(0, 32)} className="text-ink/75 mt-4 leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
+              </section>
+            ))}
+          </div>
+          <div className="mt-10 lg:col-span-5 lg:mt-0">
+            <div className="lg:sticky lg:top-24">
+              <WorkFigure figure={item.figure} />
+            </div>
+          </div>
         </div>
 
-        <ul aria-label="Stack" className="mt-12 flex max-w-2xl flex-wrap gap-x-4 gap-y-1.5">
+        <ul aria-label="Stack" className="mt-14 flex flex-wrap gap-x-4 gap-y-1.5">
           {item.tags.map((tag) => (
             <li key={tag} className="eyebrow text-trace">
               {tag}

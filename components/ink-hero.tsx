@@ -62,12 +62,20 @@ export const InkHero = () => {
       <div aria-hidden="true" className="fixed inset-0 h-svh w-screen">
         <Canvas
           camera={{ fov: 40, position: [0, -0.1, 7.7] }}
-          dpr={[1, 2]}
+          // Cap DPR at 1.5: the bloom already blurs, so full retina detail is
+          // wasted pixels through a multi-pass composer that runs the whole
+          // session (the wire stays visible in the slit past the hero).
+          dpr={[1, 1.5]}
           resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
-          gl={{ antialias: true, powerPreference: "high-performance" }}
+          // AA is done by the composer (MSAA + SMAA); the context flag would
+          // only allocate an extra unused multisampled buffer.
+          gl={{ antialias: false, powerPreference: "high-performance" }}
         >
           <InkScene />
         </Canvas>
+        {/* Static film grain (replaces the per-frame Noise pass): hides bloom
+            banding in the dark gradients at ~zero runtime cost. */}
+        <div className="ink-grain" />
       </div>
       {/* Scroll-driven dim over the canvas as the sheet approaches. */}
       <div aria-hidden="true" data-hero-dim className="bg-ink-deep absolute inset-0 opacity-0" />

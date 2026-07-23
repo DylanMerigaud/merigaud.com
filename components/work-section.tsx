@@ -5,7 +5,12 @@ import { WorkFigure } from "@/components/work-figure";
 import { work, workMore, workSection } from "@/lib/copy";
 
 export const WorkSection = () => (
-  <section id="work" aria-label="Selected work" className="pt-24 pb-24 md:pt-32 md:pb-32">
+  <section
+    id="work"
+    aria-label="Selected work"
+    tabIndex={-1}
+    className="pt-24 pb-24 focus:outline-none md:pt-32 md:pb-32"
+  >
     <div className="relative mx-auto max-w-6xl px-6 md:px-10">
       <div className="pl-7 md:pl-10">
         <p className="eyebrow text-trace">{workSection.eyebrow}</p>
@@ -33,18 +38,39 @@ export const WorkSection = () => (
                   {paragraph}
                 </p>
               ))}
-              <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-                {item.links.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              {(() => {
+                // The clickable live demo is the shortest trust path for a CTO,
+                // so it gets the one primary button; everything else stays a
+                // quiet text link underneath.
+                const primary = item.links.find((link) => /demo|playground/i.test(link.label));
+                const rest = item.links.filter((link) => link !== primary);
+                return (
+                  <>
+                    {primary === undefined ? null : (
+                      <div className="mt-6">
+                        <a
+                          href={primary.href}
+                          className="link-arrow bg-stamp hover:bg-stamp/85 inline-flex min-h-11 items-center rounded-md px-5 py-2.5 font-medium text-white transition-colors"
+                        >
+                          {primary.label}
+                        </a>
+                      </div>
+                    )}
+                    <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                      {rest.map((link) => (
+                        <li key={link.href}>
+                          <a
+                            href={link.href}
+                            className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+                          >
+                            {link.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                );
+              })()}
               <ul aria-label="Stack" className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
                 {item.tags.map((tag) => (
                   <li key={tag} className="eyebrow text-trace">

@@ -14,6 +14,7 @@ export type CasePage = {
   metaTitle: string;
   metaDescription: string;
   intro: string;
+  specs: { label: string; value: string }[];
   sections: CaseSection[];
 };
 
@@ -25,6 +26,11 @@ const casePages: CasePage[] = [
       "Case study: an agent reads a company's HRIS and derives the whole approval workflow, then invoices route through it. Mastra, Next.js, TypeScript strict, Zod.",
     intro:
       "A procure-to-pay product in two halves that form one loop: onboarding derives the approval workflow from the org chart, operations routes real invoices through it.",
+    specs: [
+      { label: "AI touchpoints", value: "3" },
+      { label: "API keys in CI", value: "0" },
+      { label: "ERP / HRIS", value: "QuickBooks · BambooHR" },
+    ],
     sections: [
       {
         heading: "Nobody draws the workflow canvas",
@@ -56,6 +62,11 @@ const casePages: CasePage[] = [
       "Quorum gates, amount thresholds, a segregation-of-duties policy lint, and plain-language editing, shipped as a shadcn registry for React Flow.",
     intro:
       "The approval workflow screen every finance-ops product rebuilds, shipped as shadcn-style components you own: one command and the code lands in your project.",
+    specs: [
+      { label: "To install", value: "1 command" },
+      { label: "Format", value: "shadcn registry" },
+      { label: "Layout by", value: "react-flow-auto-layout" },
+    ],
     sections: [
       {
         heading: "A registry, not a package",
@@ -86,6 +97,11 @@ const casePages: CasePage[] = [
       "Case study: a 41-rule researched rulebook applied by an adversarially verified agent to the code that touches money. Read-only, TypeScript, Python, Java.",
     intro:
       "An agent that scans a repository for the surfaces where money lives, audits them against a sourced rulebook of how money-handling code actually breaks, and reports only what survives adversarial verification.",
+    specs: [
+      { label: "Researched rules", value: "41" },
+      { label: "Domains", value: "10" },
+      { label: "Findings on the fixture", value: "53" },
+    ],
     sections: [
       {
         heading: "The value is the rulebook, not the prompt",
