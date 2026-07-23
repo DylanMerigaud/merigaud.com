@@ -30,8 +30,9 @@ type Extraction = {
   value: string;
   // Field rect on the invoice image, in percent.
   box: { left: string; top: string; width: string; height: string };
-  // Bottom-most field puts its chip below the box so it never covers a row.
-  labelBelow?: boolean;
+  // Where the label chip sits so it clears neighbouring rows: default above,
+  // "below", or "right" into the margin.
+  labelPos?: "below" | "right";
 };
 
 const EXTRACTIONS: Extraction[] = [
@@ -46,13 +47,14 @@ const EXTRACTIONS: Extraction[] = [
     label: "terms",
     value: "NET 30",
     box: { left: "16%", top: "31.3%", width: "18.5%", height: "3.6%" },
+    labelPos: "right",
   },
   {
     id: "amount",
     label: "amount",
     value: "$48,250.00",
-    box: { left: "68.5%", top: "49.5%", width: "18.5%", height: "3.6%" },
-    labelBelow: true,
+    box: { left: "66%", top: "49.5%", width: "20%", height: "3.6%" },
+    labelPos: "below",
   },
 ];
 
@@ -164,7 +166,8 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
           <div
             key={extraction.id}
             className="run-box"
-            {...(extraction.labelBelow === true ? { "data-label-below": "" } : {})}
+            {...(extraction.labelPos === "below" ? { "data-label-below": "" } : {})}
+            {...(extraction.labelPos === "right" ? { "data-label-right": "" } : {})}
             style={{ ...extraction.box, animationDelay: `${String(index * 0.18)}s` }}
           >
             <span className="run-box-label eyebrow">{extraction.label}</span>
@@ -197,9 +200,12 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
             ? () => {
                 elapsedRef.current = 0;
                 phaseRef.current = 0;
+                scrollState.runSweep = -1;
                 skippedRef.current = false;
                 setPhase(0);
                 setIsSkipped(false);
+                // The rAF loop quiesced when the run finished; restart it.
+                restartRef.current();
               }
             : undefined
         }

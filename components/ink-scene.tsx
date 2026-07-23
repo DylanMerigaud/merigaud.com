@@ -29,19 +29,29 @@ uniform vec2 uWindow;
 uniform float uFillAt;
 uniform float uFill;
 uniform float uIsRing;
+uniform float uTrackOn;
 uniform vec3 uBase;
 uniform vec3 uGlow;
+uniform vec3 uTrackColor;
 varying vec2 vUv;
 
 void main() {
   float t = mix(uWindow.x, uWindow.y, vUv.x);
-  if (uIsRing < 0.5 && t > uDraw) discard;
   if (uIsRing > 0.5 && uDraw < uWindow.x) discard;
-  vec3 col = uBase;
-  float fill = max(smoothstep(uFillAt, uFillAt + 0.05, uDraw) * uIsRing, uFill);
-  float pulseDistance = abs(t - uPulse);
-  float pulse = smoothstep(0.09, 0.0, pulseDistance);
-  col += uGlow * (pulse * 1.1 + fill * 0.85);
+  bool undrawn = uIsRing < 0.5 && t > uDraw;
+  // A wire with a track shows the undrawn part as a dim grey continuation on the
+  // SAME tube (one line, not two); a plain wire just draws on and discards ahead.
+  if (undrawn && uTrackOn < 0.5) discard;
+  vec3 col;
+  if (undrawn) {
+    col = uTrackColor;
+  } else {
+    col = uBase;
+    float fill = max(smoothstep(uFillAt, uFillAt + 0.05, uDraw) * uIsRing, uFill);
+    float pulseDistance = abs(t - uPulse);
+    float pulse = smoothstep(0.09, 0.0, pulseDistance);
+    col += uGlow * (pulse * 1.1 + fill * 0.85);
+  }
   col *= 0.82 + 0.34 * sin(vUv.y * 6.2831853);
   gl_FragColor = vec4(col, 1.0);
 }
@@ -54,8 +64,10 @@ type InkUniforms = {
   uFillAt: { value: number };
   uFill: { value: number };
   uIsRing: { value: number };
+  uTrackOn: { value: number };
   uBase: { value: THREE.Color };
   uGlow: { value: THREE.Color };
+  uTrackColor: { value: THREE.Color };
 };
 
 const makeInkMaterial = (options: {
@@ -70,8 +82,10 @@ const makeInkMaterial = (options: {
     uFillAt: { value: options.fillAt ?? 2 },
     uFill: { value: 0 },
     uIsRing: { value: options.isRing === true ? 1 : 0 },
+    uTrackOn: { value: 0 },
     uBase: { value: INK_BASE.clone() },
     uGlow: { value: INK_GLOW.clone() },
+    uTrackColor: { value: new THREE.Color("#3f4c45") },
   };
   const material = new THREE.ShaderMaterial({
     uniforms,
@@ -223,7 +237,6 @@ const DRAW_HEAD = 0.66;
 const SpineWire = () => {
   const groupRef = useRef<THREE.Group>(null);
   const tubeMeshRef = useRef<THREE.Mesh>(null);
-  const trackMeshRef = useRef<THREE.Mesh>(null);
   const ringMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const coreMeshesRef = useRef<(THREE.Mesh | null)[]>([]);
   const pulseTimeRef = useRef(0);
@@ -247,17 +260,16 @@ const SpineWire = () => {
     const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.5);
     // Higher radial + tubular segments so the thin wire holds up under AA.
     const tubeGeometry = new THREE.TubeGeometry(curve, 220, 0.02, 16, false);
+    // ONE tube: the green ink fills up to the drawing head, the rest shows as a
+    // dim grey track on the same wire (a single line, never two).
     const tube = makeInkMaterial({ window: [0, 1] });
-    // The full path shows as a dim grey track (where the ink will go); the green
-    // ink fills along it up to the drawing head as you scroll.
-    const track = makeInkMaterial({ window: [0, 1] });
-    track.uniforms.uDraw.value = 1;
-    track.uniforms.uBase.value = new THREE.Color("#3f4c45");
+    tube.uniforms.uTrackOn.value = 1;
 
-    const ringGeometry = new THREE.TorusGeometry(0.075, 0.018, 16, 64);
+    // Ring sized to sit inside the slit (its outer edge stays clear of the paper).
+    const ringGeometry = new THREE.TorusGeometry(0.058, 0.014, 16, 64);
     // A solid core sphere sits under each ring so the tube passing through never
     // shows an open end or a seam at the junction.
-    const coreGeometry = new THREE.SphereGeometry(0.062, 24, 24);
+    const coreGeometry = new THREE.SphereGeometry(0.05, 24, 24);
     const rings = Array.from({ length: 6 }, () => {
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
       // Node draws over the wire it rides, never occluded by the tube surface.
@@ -275,7 +287,6 @@ const SpineWire = () => {
       tubeGeometry,
       tubeMaterial: tube.material,
       tubeUniforms: tube.uniforms,
-      trackMaterial: track.material,
       ringGeometry,
       coreGeometry,
       rings,
@@ -289,7 +300,6 @@ const SpineWire = () => {
     return () => {
       parts.tubeGeometry.dispose();
       parts.tubeMaterial.dispose();
-      parts.trackMaterial.dispose();
       parts.ringGeometry.dispose();
       parts.coreGeometry.dispose();
       for (const ring of parts.rings) {
@@ -339,40 +349,29 @@ const SpineWire = () => {
     const headScreenY = viewportHeight * DRAW_HEAD;
 
     const topWorldY = toWorldY(topScreenY);
-    const bottomWorldY = toWorldY(bottomScreenY);
-    const spanWorld = topWorldY - bottomWorldY;
 
     if (!scrollState.paused) pulseTimeRef.current += delta;
     const pulse = (pulseTimeRef.current % 5) / 5;
 
-    // How far the drawing head has advanced down the wire (0 at sheet top, 1 at
-    // the last marker). This is anchored to the document, not to the viewport.
-    const drawFrac = clamp01((headScreenY - topScreenY) / Math.max(bottomScreenY - topScreenY, 1));
+    // One tube spans the whole page (sheet top to the very bottom). The green ink
+    // fills to the reading head but never past the approve node, and the rest of
+    // the tube shows its grey track, so the gutter always holds a single wire.
+    const end = document.querySelector<HTMLElement>("[data-spine-end]");
+    const endScreenY = end === null ? bottomScreenY : end.getBoundingClientRect().top;
+    const endWorldY = toWorldY(endScreenY);
+    const pageSpan = Math.max(endScreenY - topScreenY, 1);
+    const headUv = clamp01((headScreenY - topScreenY) / pageSpan);
+    const approveUv = clamp01((bottomScreenY - topScreenY) / pageSpan);
+    const drawFrac = Math.min(headUv, approveUv);
+    const fullSpanWorld = topWorldY - endWorldY;
 
     const tube = tubeMeshRef.current;
-    const track = trackMeshRef.current;
-    if (tube !== null && spanWorld > 0) {
-      const midY = (topWorldY + bottomWorldY) / 2;
-      const scaleY = spanWorld / SPINE_LOCAL_HEIGHT;
-      // The green ink is anchored top-of-sheet to the last node and fills to the
-      // head; it completes exactly at the approve node.
-      tube.position.set(worldX, midY, -SPINE_DEPTH);
-      tube.scale.set(1.15, scaleY, 1.15);
+    if (tube !== null && fullSpanWorld > 0) {
+      tube.position.set(worldX, (topWorldY + endWorldY) / 2, -SPINE_DEPTH);
+      tube.scale.set(1.15, fullSpanWorld / SPINE_LOCAL_HEIGHT, 1.15);
       parts.tubeUniforms.uDraw.value = drawFrac;
       parts.tubeUniforms.uFill.value = 0.55;
       parts.tubeUniforms.uPulse.value = pulse * drawFrac;
-    }
-    // The grey track runs the full page (sheet top to the very bottom) behind the
-    // ink, so the gutter slit always shows a wire instead of empty black.
-    if (track !== null) {
-      const end = document.querySelector<HTMLElement>("[data-spine-end]");
-      const endScreenY = end === null ? bottomScreenY : end.getBoundingClientRect().top;
-      const endWorldY = toWorldY(endScreenY);
-      const trackSpan = topWorldY - endWorldY;
-      if (trackSpan > 0) {
-        track.position.set(worldX, (topWorldY + endWorldY) / 2, -SPINE_DEPTH - 0.03);
-        track.scale.set(1.05, trackSpan / SPINE_LOCAL_HEIGHT, 1.05);
-      }
     }
 
     // Rings + cores ride their DOM markers; they appear only once the drawing
@@ -405,7 +404,6 @@ const SpineWire = () => {
 
   return (
     <group ref={groupRef}>
-      <mesh ref={trackMeshRef} geometry={parts.tubeGeometry} material={parts.trackMaterial} />
       <mesh ref={tubeMeshRef} geometry={parts.tubeGeometry} material={parts.tubeMaterial} />
       {parts.rings.map((ring, index) => (
         <group key={`spine-node-${String(index)}`}>

@@ -346,6 +346,13 @@ html[data-ink3d] .trace-node {
 
 /* ---------- the live run (ink3d hero) ---------- */
 
+@media (max-width: 767px) {
+  .run-invoice,
+  .run-receipt {
+    display: none;
+  }
+}
+
 .run-invoice {
   position: absolute;
   left: 7%;
@@ -441,6 +448,14 @@ html[data-ink3d] .trace-node {
 .run-box[data-label-below] .run-box-label {
   top: auto;
   bottom: -1.5rem;
+}
+
+/* Field with tight rows above/below: chip sits to the RIGHT, in the margin. */
+.run-box[data-label-right] .run-box-label {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  margin-left: 0.45rem;
 }
 
 .run-receipt {
