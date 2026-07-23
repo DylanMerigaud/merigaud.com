@@ -127,8 +127,11 @@ body {
 .spine {
   position: absolute;
   top: 0;
-  width: 1px;
-  background-color: color-mix(in srgb, var(--color-trace) 35%, transparent);
+  /* Sits exactly on the node rail: content-box left edge of the centered
+     max-w-6xl container (md:px-10). */
+  left: max(2.5rem, calc((100% - 72rem) / 2 + 2.5rem));
+  width: 2px;
+  background-color: color-mix(in srgb, var(--color-trace) 60%, transparent);
 }
 
 .spine-fill {
@@ -147,6 +150,8 @@ body {
   border-radius: 9999px;
   border: 1.5px solid var(--color-trace);
   background-color: var(--color-paper);
+  /* The paper ring lets the spine pass visually through the node. */
+  box-shadow: 0 0 0 4px var(--color-paper);
   transform: translateX(-5px);
   transition:
     border-color 0.4s ease,
@@ -155,6 +160,7 @@ body {
 
 .on-dark .trace-node {
   background-color: var(--color-ink-deep);
+  box-shadow: 0 0 0 4px var(--color-ink-deep);
 }
 
 .trace-node.is-filled {
@@ -180,11 +186,61 @@ body {
 /* ---------- work figures ---------- */
 
 .figure-card {
+  position: relative;
   border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 16px rgb(19 19 22 / 0.07);
   background-color: var(--color-paper-dim);
+  transition: transform 0.3s ease;
+}
+
+.figure-card:hover {
+  transform: scale(1.01);
+}
+
+.figure-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: rgb(10 11 13 / 0.72);
+  color: var(--color-stamp-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figure-card,
+  .figure-card:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ---------- ink3d mode (the WebGL trace) ---------- */
+
+/* The DOM spine and node dots hand over to the volumetric wire; markers keep
+   their layout boxes so the 3D rings can track them. */
+html[data-ink3d] .spine {
+  display: none;
+}
+
+html[data-ink3d] .trace-node {
+  visibility: hidden;
+}
+
+@media (min-width: 768px) {
+  html[data-ink3d] .sheet {
+    --slit-x: max(2.5rem, calc((100vw - 72rem) / 2 + 2.5rem));
+    mask-image: linear-gradient(
+      to right,
+      black 0,
+      black calc(var(--slit-x) - 13px),
+      transparent calc(var(--slit-x) - 13px),
+      transparent calc(var(--slit-x) + 15px),
+      black calc(var(--slit-x) + 15px)
+    );
+  }
 }
 
 .link-arrow::after {
@@ -208,16 +264,20 @@ body {
 /* ---------- pull statement ---------- */
 
 .pull-statement {
-  font-size: clamp(1.9rem, 4.6vw, 4rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  font-variation-settings: "wdth" 110;
-  font-weight: 620;
+  font-size: clamp(2.75rem, 7.5vw, 7rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  font-variation-settings: "wdth" 112;
+  font-weight: 640;
+  max-width: 16ch;
   text-wrap: balance;
 }
 
 .pull-never {
-  box-shadow: inset 0 -0.14em 0 0 var(--color-flag);
+  text-decoration: underline;
+  text-decoration-color: var(--color-flag);
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.14em;
 }
 
 /* ---------- stamp ---------- */

@@ -21,10 +21,15 @@
     "hero:generate": "tsx scripts/generate-hero.ts"
   },
   "dependencies": {
+    "@react-three/fiber": "^9.6.1",
+    "@react-three/postprocessing": "^3.0.4",
     "@vercel/analytics": "^2.0.1",
+    "lenis": "^1.3.25",
     "next": "16.2.10",
+    "postprocessing": "^6.39.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@dylanmerigaud/config": "^0.4.0",
@@ -33,6 +38,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.1",
     "eslint": "^10.7",
     "knip": "^6.26.0",
     "prettier": "^3.9.5",

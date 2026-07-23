@@ -3,7 +3,10 @@ import { experience } from "@/lib/copy";
 
 // The dark world returns once below the fold: the run history, set as a ledger.
 export const ExperienceSection = () => (
-  <section aria-label="Experience" className="band-dark on-dark mt-24 py-20 md:mt-32 md:py-24">
+  <section
+    aria-label="Experience"
+    className="band-dark on-dark relative -mt-7 rounded-t-[28px] py-24 md:py-32"
+  >
     <div className="relative mx-auto max-w-6xl px-6 md:px-10">
       <SectionMarker
         stage={experience.stage}

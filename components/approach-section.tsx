@@ -7,7 +7,7 @@ export const ApproachSection = () => (
       <SectionMarker stage={approach.stage} index={approach.index} label={approach.eyebrow} />
       <h2 className="sr-only">{approach.heading}</h2>
       <div className="pl-7 md:pl-10">
-        <p className="pull-statement mt-10 max-w-4xl">
+        <p className="pull-statement mt-10">
           {approach.pullBefore} <span className="pull-never">{approach.pullNever}</span>{" "}
           {approach.pullAfter}
         </p>

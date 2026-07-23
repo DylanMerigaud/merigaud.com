@@ -172,7 +172,7 @@ export const experience = {
 export const approach = {
   stage: "policy",
   index: "05",
-  eyebrow: "policy",
+  eyebrow: "no llm on amounts",
   heading: "How I build AI for fintech",
   pullBefore: "An LLM",
   pullNever: "never",
@@ -193,7 +193,7 @@ export const approach = {
 export const contact = {
   stage: "approve",
   index: "06",
-  eyebrow: "approve",
+  eyebrow: "let's talk",
   heading: "Building AI into a fintech product? Let's talk.",
   ctaEmailLabel: "dylan@merigaud.com",
   ctaCallLabel: "Book 20 min",

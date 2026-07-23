@@ -3,13 +3,15 @@ import { WorkFigure } from "@/components/work-figure";
 import { work, workMore, workSection } from "@/lib/copy";
 
 export const WorkSection = () => (
-  <section id="work" aria-label="Selected work" className="pt-24 pb-8 md:pt-32">
+  <section id="work" aria-label="Selected work" className="pt-24 pb-24 md:pt-32 md:pb-32">
     <div className="relative mx-auto max-w-6xl px-6 md:px-10">
-      <p className="eyebrow text-trace">{workSection.eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-        {workSection.heading}
-      </h2>
-      <p className="text-ink/75 mt-4 max-w-xl leading-relaxed">{workSection.intro}</p>
+      <div className="pl-7 md:pl-10">
+        <p className="eyebrow text-trace">{workSection.eyebrow}</p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+          {workSection.heading}
+        </h2>
+        <p className="text-ink/75 mt-4 max-w-xl leading-relaxed">{workSection.intro}</p>
+      </div>
     </div>
 
     <div className="space-y-24 pt-20 md:space-y-32">
@@ -53,7 +55,7 @@ export const WorkSection = () => (
       ))}
     </div>
 
-    <div className="relative mx-auto max-w-6xl px-6 pt-20 md:px-10">
+    <div className="relative mx-auto max-w-6xl px-6 pt-16 md:px-10">
       <div className="border-ink/15 border-t pt-6 pl-7 md:pl-10">
         <p className="eyebrow text-trace">{workMore.label}</p>
         <p className="text-ink/75 mt-2 max-w-2xl leading-relaxed">

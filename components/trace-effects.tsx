@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { scrollState } from "@/lib/scroll-state";
+
 // Renders nothing. Drives the page's two scroll behaviors (hero dim under the
 // paper sheet, trace spine draw) plus node fills, the stamp, and lazy playback
 // of the figure loops. Everything degrades to static under reduced motion via
@@ -10,7 +12,8 @@ export const TraceEffects = () => {
   useEffect(() => {
     const spine = document.querySelector<HTMLElement>("[data-spine]");
     const spineFill = document.querySelector<HTMLElement>("[data-spine-fill]");
-    const heroDim = document.querySelector<HTMLElement>("[data-hero-dim]");
+    let heroDim = document.querySelector<HTMLElement>("[data-hero-dim]");
+    let heroFade = document.querySelector<HTMLElement>("[data-hero-fade]");
     const sheet = document.querySelector<HTMLElement>("[data-sheet]");
     const approveNode = document.querySelector<HTMLElement>('[data-node="approve"]');
     const nodes = document.querySelectorAll<HTMLElement>("[data-node]");
@@ -81,9 +84,26 @@ export const TraceEffects = () => {
     let raf = 0;
     const frame = () => {
       const viewportHeight = window.innerHeight;
+      // Shared scroll state for the ink3d scene.
+      const maxScroll = document.documentElement.scrollHeight - viewportHeight;
+      scrollState.progress = maxScroll > 0 ? Math.min(window.scrollY / maxScroll, 1) : 0;
+      scrollState.hero = Math.min(Math.max(window.scrollY / viewportHeight, 0), 1);
+      if (heroDim === null || !heroDim.isConnected) {
+        heroDim = document.querySelector<HTMLElement>("[data-hero-dim]");
+      }
       if (heroDim !== null) {
-        const progress = Math.min(Math.max(window.scrollY / viewportHeight, 0), 1);
-        heroDim.style.opacity = String(progress * 0.6);
+        // Dim through the seam, then release so the slit spine stays legible.
+        const release = 1 - Math.min(Math.max((scrollState.progress - 0.18) / 0.12, 0), 1);
+        heroDim.style.opacity = String(scrollState.hero * 0.6 * release);
+      }
+      if (heroFade === null || !heroFade.isConnected) {
+        heroFade = document.querySelector<HTMLElement>("[data-hero-fade]");
+      }
+      if (heroFade !== null) {
+        // The sticky hero text leaves before the sheet (and its slit) covers it.
+        const fade = 1 - Math.min(Math.max((scrollState.hero - 0.2) / 0.3, 0), 1);
+        heroFade.style.opacity = String(fade);
+        heroFade.style.pointerEvents = fade < 0.1 ? "none" : "";
       }
       if (spineFill !== null && spine !== null) {
         const rect = spine.getBoundingClientRect();

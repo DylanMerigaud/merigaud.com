@@ -19,3 +19,4 @@ next-env.d.ts
 
 # hero generation working files (finals are committed in public/)
 /scripts/out/
+.env*
