@@ -73,7 +73,7 @@ export const work: WorkItem[] = [
     ],
     links: [
       { label: "Case study", href: "/work/ledgerloop" },
-      { label: "Live demo", href: "https://ledgerloop-eta.vercel.app/" },
+      { label: "Live demo", href: "https://ledgerloop.merigaud.com/" },
       { label: "GitHub", href: "https://github.com/DylanMerigaud/ledgerloop" },
     ],
     tags: ["Mastra", "Next.js", "TypeScript strict", "Zod", "Drizzle", "QuickBooks", "BambooHR"],
@@ -146,7 +146,7 @@ export const workMore = {
   label: "also in the trace",
   text: "AI Invoice Parser, a schema-validated extraction demo with an eval harness across 9 messy real-world formats.",
   links: [
-    { label: "Live demo", href: "https://ai-invoice-parser-rho.vercel.app/" },
+    { label: "Live demo", href: "https://invoice-parser.merigaud.com/" },
     { label: "GitHub", href: "https://github.com/DylanMerigaud/ai-invoice-parser" },
   ],
 } as const;
