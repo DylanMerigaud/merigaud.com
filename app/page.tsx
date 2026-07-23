@@ -3,6 +3,7 @@ import { ContactSection } from "@/components/contact-section";
 import { EngagementSection } from "@/components/engagement-section";
 import { ExperienceSection } from "@/components/experience-section";
 import { HeroGate } from "@/components/hero-gate";
+import { TestimonialsSection } from "@/components/testimonials-section";
 import { TraceEffects } from "@/components/trace-effects";
 import { WorkSection } from "@/components/work-section";
 import { jsonLd } from "@/lib/copy";
@@ -22,6 +23,7 @@ export default function Page() {
           <div data-spine-fill className="spine-fill" />
         </div>
         <WorkSection />
+        <TestimonialsSection />
         <ExperienceSection />
         <ApproachSection />
         <EngagementSection />
