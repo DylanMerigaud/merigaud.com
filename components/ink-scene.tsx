@@ -37,20 +37,33 @@ varying vec2 vUv;
 
 void main() {
   float t = mix(uWindow.x, uWindow.y, vUv.x);
-  if (uIsRing > 0.5 && uDraw < uWindow.x) discard;
-  bool undrawn = uIsRing < 0.5 && t > uDraw;
-  // A wire with a track shows the undrawn part as a dim grey continuation on the
-  // SAME tube (one line, not two); a plain wire just draws on and discards ahead.
-  if (undrawn && uTrackOn < 0.5) discard;
   vec3 col;
-  if (undrawn) {
-    col = uTrackColor;
+  if (uIsRing > 0.5) {
+    if (uDraw < uWindow.x) discard;
+    if (uTrackOn > 0.5) {
+      // Spine node: a piece of the SAME wire. Grey (the track colour) when
+      // unfilled, and exactly the wire's drawn green when filled, so a knob never
+      // reads as a different, brighter green than the bar. (0.72 == the tube's
+      // uFill 0.85 * 0.85 base-glow contribution.)
+      vec3 lit = uBase + uGlow * 0.72;
+      col = mix(uTrackColor, lit, uFill);
+    } else {
+      // Hero graph node: additive, fills as the graph draws on (unchanged).
+      float fill = max(smoothstep(uFillAt, uFillAt + 0.05, uDraw), uFill);
+      float pulse = smoothstep(0.09, 0.0, abs(t - uPulse));
+      col = uBase + uGlow * (pulse * 1.1 + fill * 0.85);
+    }
   } else {
-    col = uBase;
-    float fill = max(smoothstep(uFillAt, uFillAt + 0.05, uDraw) * uIsRing, uFill);
-    float pulseDistance = abs(t - uPulse);
-    float pulse = smoothstep(0.09, 0.0, pulseDistance);
-    col += uGlow * (pulse * 1.1 + fill * 0.85);
+    bool undrawn = t > uDraw;
+    // The undrawn part shows as a dim grey continuation on the SAME tube (one
+    // line, not two); a plain wire just draws on and discards ahead.
+    if (undrawn && uTrackOn < 0.5) discard;
+    if (undrawn) {
+      col = uTrackColor;
+    } else {
+      float pulse = smoothstep(0.09, 0.0, abs(t - uPulse));
+      col = uBase + uGlow * (pulse * 1.1 + uFill * 0.85);
+    }
   }
   col *= 0.82 + 0.34 * sin(vUv.y * 6.2831853);
   gl_FragColor = vec4(col, 1.0);
@@ -276,10 +289,11 @@ const SpineWire = () => {
         : Math.max(document.querySelectorAll("[data-node]").length, 1);
     const rings = Array.from({ length: markerCount }, () => {
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
-      // Grey by default (same as the track ahead of the ink); the fill uniform
-      // lights it green as the drawing head reaches it. It is a node ON the wire,
-      // not a green marker sitting on grey.
-      ring.uniforms.uBase.value = new THREE.Color("#3f4c45");
+      // A spine node is a piece of the SAME wire: grey (uTrackColor) ahead of the
+      // ink, and the wire's exact drawn green once uFill lights it. uTrackOn flips
+      // the shader to that track→wire-green mix, so uBase stays INK_BASE (the wire
+      // colour) and a filled knob is never a brighter, different green than the bar.
+      ring.uniforms.uTrackOn.value = 1;
       // Node draws over the wire it rides, never occluded by the tube surface.
       ring.material.depthTest = false;
       ring.material.depthWrite = false;
