@@ -1,0 +1,4 @@
+/.next/
+/node_modules/
+/scripts/out/
+pnpm-lock.yaml

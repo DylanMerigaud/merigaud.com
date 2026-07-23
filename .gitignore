@@ -1,0 +1,21 @@
+# deps
+/node_modules
+
+# next
+/.next/
+/out/
+next-env.d.ts
+
+# misc
+.DS_Store
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+
+# vercel
+.vercel
+
+# hero generation working files (finals are committed in public/)
+/scripts/out/

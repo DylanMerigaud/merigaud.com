@@ -1,0 +1,55 @@
+{
+  "name": "merigaud.com",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.24.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "prettier": "@dylanmerigaud/config/prettier",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,mts,mjs,css,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,mts,mjs,css,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "knip": "knip",
+    "validate": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run knip",
+    "hero:generate": "tsx scripts/generate-hero.ts"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "next": "16.2.10",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@dylanmerigaud/config": "^0.4.0",
+    "@fal-ai/client": "^1.10.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^10.7",
+    "knip": "^6.26.0",
+    "prettier": "^3.9.5",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.0",
+    "typescript": "~5.9.3",
+    "zod": "^4.4.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ],
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "eslint-plugin-jsx-a11y>eslint": "10"
+      }
+    }
+  }
+}
