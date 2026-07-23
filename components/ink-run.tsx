@@ -130,7 +130,10 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
   );
 
   return (
-    <div className={`run ${phaseClasses} ${isSkipped ? "run-done" : ""} relative h-full`}>
+    <div
+      data-hero-fade
+      className={`run ${phaseClasses} ${isSkipped ? "run-done" : ""} relative h-full`}
+    >
       {/* The document under processing. */}
       <div aria-hidden="true" className="run-invoice">
         <Image
@@ -167,6 +170,22 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
           <span className="run-status-approved">APPROVED · human in the loop</span>
         </p>
       </div>
+
+      {isSkipped ? (
+        <button
+          type="button"
+          onClick={() => {
+            elapsedRef.current = 0;
+            phaseRef.current = 0;
+            skippedRef.current = false;
+            setPhase(0);
+            setIsSkipped(false);
+          }}
+          className="eyebrow border-paper/25 text-trace-dark hover:border-paper/60 hover:text-paper absolute right-6 bottom-[4.75rem] min-h-11 rounded-md border px-4 py-3 transition-colors max-md:hidden md:right-10"
+        >
+          replay run
+        </button>
+      ) : null}
 
       <HeroContent
         isPlaying={isPlaying}

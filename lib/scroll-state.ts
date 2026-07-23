@@ -13,4 +13,6 @@ export const scrollState = {
   paused: false,
   // One-shot routing sweep progress driven by the hero run; -1 when idle.
   runSweep: -1,
+  // Set when the contact stamp enters view in ink3d mode; the 3D seal answers.
+  sealRequest: false,
 };

@@ -1,0 +1,20 @@
+# Dylan Mérigaud
+
+> Freelance AI full-stack engineer for fintech. 9 years shipping in startups, ex-Pivot (procurement fintech, Paris). Builds AI into real products: agents, integrations, evals, and the deterministic code around them. Doctrine: an LLM never decides a payment amount; AI reads documents, derives workflows, and investigates exceptions; code moves the money.
+
+Contact: dylan@merigaud.com · https://calendly.com/dylanmerigaud-pro/intro
+Location: remote from Mexico City (GMT-6), on-site NY/SF for key milestones, Paris available.
+Specialties: AP automation, invoice extraction, approval workflows, reconciliation, LLM evals, Next.js, TypeScript, Python, Mastra.
+
+## Work
+
+- [ledgerloop](https://merigaud.com/work/ledgerloop): an agent reads a company's HRIS and derives the whole approval workflow, then invoices route through it. Live demo: https://ledgerloop-eta.vercel.app/
+- [approvals-ui](https://merigaud.com/work/approvals-ui): the approval workflow screen as shadcn components. Quorum gates, amount thresholds, a segregation-of-duties policy lint, plain-language editing. Playground: https://approvals-ui.vercel.app
+- [fintech-roast](https://merigaud.com/work/fintech-roast): an agent that roasts the code that touches money. 41 researched rules across 10 domains, adversarially verified findings, read-only. https://github.com/DylanMerigaud/fintech-roast
+
+## Links
+
+- Site: https://merigaud.com
+- GitHub: https://github.com/DylanMerigaud
+- LinkedIn: https://www.linkedin.com/in/dylanmerigaud
+- npm: https://www.npmjs.com/~dylanmerigaud

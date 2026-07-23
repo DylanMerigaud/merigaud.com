@@ -72,6 +72,7 @@ export const work: WorkItem[] = [
       "AI sits only where it earns its keep: reading messy documents, mapping org titles to signing authority, investigating flagged exceptions. The money path is deterministic, unit-tested code, and nothing posts before a human approves. Every run lands as an append-only audit row, replayable with zero tokens. Swap the QuickBooks adapter for NetSuite and nothing downstream changes.",
     ],
     links: [
+      { label: "Case study", href: "/work/ledgerloop" },
       { label: "Live demo", href: "https://ledgerloop-eta.vercel.app/" },
       { label: "GitHub", href: "https://github.com/DylanMerigaud/ledgerloop" },
     ],
@@ -95,6 +96,7 @@ export const work: WorkItem[] = [
       "Quorum gates, amount thresholds, a policy lint that knows what segregation of duties means, and plain-language editing where a human reviews the diff before anything lands. One command and the code lands in your project, yours to edit. Built on react-flow-auto-layout, my published npm package that lays out React Flow graphs the way dagre should.",
     ],
     links: [
+      { label: "Case study", href: "/work/approvals-ui" },
       { label: "Live playground", href: "https://approvals-ui.vercel.app" },
       { label: "GitHub", href: "https://github.com/DylanMerigaud/approvals-ui" },
       { label: "npm", href: "https://www.npmjs.com/package/react-flow-auto-layout" },
@@ -120,6 +122,7 @@ export const work: WorkItem[] = [
       "A rulebook of 41 researched rules across 10 domains, applied per-language to TypeScript, Python, and Java, with every finding adversarially verified before it is reported. Read-only: it never edits your code. 53 findings on the planted-bug fixture. Run it on your own repo in two commands.",
     ],
     links: [
+      { label: "Case study", href: "/work/fintech-roast" },
       { label: "GitHub", href: "https://github.com/DylanMerigaud/fintech-roast" },
       {
         label: "Sample report",

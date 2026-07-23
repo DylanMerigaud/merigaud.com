@@ -357,6 +357,133 @@ const CameraRig = () => {
   return null;
 };
 
+// ---------------------------------------------------------------------------
+// The seal: a volumetric hand-stamp that descends onto the contact section and
+// physically prints the DOM APPROVED stamp. Fired once by TraceEffects when
+// the stamp scrolls into view in ink3d mode.
+// ---------------------------------------------------------------------------
+
+const SEAL_DEPTH = 5;
+const SEAL_DURATION = 1.05;
+
+const SealPress = () => {
+  const groupRef = useRef<THREE.Group>(null);
+  const startRef = useRef<number | null>(null);
+  const targetRef = useRef<{ x: number; y: number } | null>(null);
+  const hasPrintedRef = useRef(false);
+
+  const parts = useMemo(() => {
+    // Handle profile lathed around Y: knob, waist, base disc.
+    const profile: THREE.Vector2[] = [
+      new THREE.Vector2(0.001, 1),
+      new THREE.Vector2(0.1, 0.97),
+      new THREE.Vector2(0.13, 0.85),
+      new THREE.Vector2(0.07, 0.7),
+      new THREE.Vector2(0.06, 0.34),
+      new THREE.Vector2(0.11, 0.2),
+      new THREE.Vector2(0.26, 0.11),
+      new THREE.Vector2(0.28, 0.02),
+      new THREE.Vector2(0.26, 0),
+      new THREE.Vector2(0.001, 0),
+    ];
+    const bodyGeometry = new THREE.LatheGeometry(profile, 40);
+    const body = makeInkMaterial({ window: [0, 1] });
+    body.uniforms.uDraw.value = 1;
+    body.uniforms.uBase.value = new THREE.Color("#2e3335");
+
+    const faceGeometry = new THREE.TorusGeometry(0.23, 0.02, 8, 40);
+    const face = makeInkMaterial({ window: [0, 0], isRing: true });
+    face.uniforms.uDraw.value = 1;
+    face.uniforms.uFill.value = 1;
+
+    return { bodyGeometry, bodyMaterial: body.material, faceGeometry, faceMaterial: face.material };
+  }, []);
+
+  useEffect(
+    () => () => {
+      parts.bodyGeometry.dispose();
+      parts.bodyMaterial.dispose();
+      parts.faceGeometry.dispose();
+      parts.faceMaterial.dispose();
+    },
+    [parts]
+  );
+
+  useFrame((state) => {
+    const group = groupRef.current;
+    if (group === null) return;
+    const camera = state.camera;
+    if (!(camera instanceof THREE.PerspectiveCamera)) return;
+
+    if (startRef.current === null) {
+      group.visible = false;
+      if (!scrollState.sealRequest) return;
+      const stampElement = document.querySelector<HTMLElement>("[data-stamp]");
+      if (stampElement === null) {
+        // No 3D press possible; print directly.
+        scrollState.sealRequest = false;
+        return;
+      }
+      const rect = stampElement.getBoundingClientRect();
+      const ndcX = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
+      const ndcY = 1 - ((rect.top + rect.height / 2) / window.innerHeight) * 2;
+      const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5) * SEAL_DEPTH;
+      const halfW = halfH * camera.aspect;
+      targetRef.current = { x: ndcX * halfW, y: ndcY * halfH };
+      startRef.current = state.clock.elapsedTime;
+    }
+
+    const target = targetRef.current;
+    if (target === null) return;
+    const progress = (state.clock.elapsedTime - startRef.current) / SEAL_DURATION;
+
+    // Lock to the camera, then articulate the press in view space.
+    group.position.copy(camera.position);
+    group.quaternion.copy(camera.quaternion);
+    group.visible = true;
+
+    const seal = group.children.at(0);
+    if (seal === undefined) return;
+
+    // Timeline: fall (0-0.38), impact squash (0.38-0.52), retreat (0.52-1).
+    const fall = Math.min(progress / 0.38, 1);
+    const drop = 1.6 * (1 - fall * fall);
+    const squash =
+      progress > 0.38 && progress < 0.52
+        ? 1 - 0.16 * Math.sin(((progress - 0.38) / 0.14) * Math.PI)
+        : 1;
+    const retreat = progress > 0.52 ? (progress - 0.52) / 0.48 : 0;
+
+    seal.position.set(target.x, target.y + drop + retreat * 2.2, -SEAL_DEPTH + retreat * -1.5);
+    seal.scale.set(1, squash, 1);
+
+    if (progress >= 0.4 && !hasPrintedRef.current) {
+      hasPrintedRef.current = true;
+      document.querySelector("[data-stamp]")?.classList.add("is-stamped");
+    }
+
+    if (progress >= 1) {
+      group.visible = false;
+      scrollState.sealRequest = false;
+      // Done for good; keep startRef set so it never re-fires.
+    }
+  });
+
+  return (
+    <group ref={groupRef} visible={false}>
+      <group>
+        <mesh geometry={parts.bodyGeometry} material={parts.bodyMaterial} />
+        <mesh
+          geometry={parts.faceGeometry}
+          material={parts.faceMaterial}
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[0, 0.01, 0]}
+        />
+      </group>
+    </group>
+  );
+};
+
 export const InkScene = () => {
   const { scene } = useThree();
 
@@ -370,6 +497,7 @@ export const InkScene = () => {
       <CameraRig />
       <HeroGraph />
       <SpineWire />
+      <SealPress />
       <EffectComposer multisampling={0}>
         <Bloom intensity={0.55} luminanceThreshold={0.32} mipmapBlur />
         <Vignette darkness={0.55} />

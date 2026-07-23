@@ -54,7 +54,12 @@ export const TraceEffects = () => {
             continue;
           }
 
-          entry.target.classList.add("is-stamped");
+          if (document.documentElement.dataset["ink3d"] === "true") {
+            // The 3D seal presses first and prints the stamp itself.
+            scrollState.sealRequest = true;
+          } else {
+            entry.target.classList.add("is-stamped");
+          }
           stampObserver.unobserve(entry.target);
         }
       },

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SectionMarker } from "@/components/section-marker";
 import { WorkFigure } from "@/components/work-figure";
 import { work, workMore, workSection } from "@/lib/copy";
@@ -20,7 +22,11 @@ export const WorkSection = () => (
           <SectionMarker stage={item.stage} index={item.index} label={item.title} />
           <div className="pl-7 md:grid md:grid-cols-12 md:gap-10 md:pl-10">
             <div className="md:col-span-5">
-              <h3 className="mt-4 text-2xl font-semibold tracking-tight">{item.title}</h3>
+              <h3 className="mt-4 text-2xl font-semibold tracking-tight">
+                <Link href={`/work/${item.slug}`} className="hover:text-stamp transition-colors">
+                  {item.title}
+                </Link>
+              </h3>
               <p className="text-ink/90 mt-3 text-lg leading-snug font-medium">{item.lead}</p>
               {item.body.map((paragraph) => (
                 <p key={paragraph.slice(0, 24)} className="text-ink/75 mt-4 leading-relaxed">
