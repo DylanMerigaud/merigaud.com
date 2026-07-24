@@ -56,6 +56,9 @@ export const HeroGate = () => {
         void import("@/components/ink-hero");
         setMode("ink");
       } else {
+        // Not taking the ink path after all (e.g. the pre-paint guess raced a
+        // resize): release the headline so it never stays hidden.
+        document.documentElement.classList.remove("pre-ink");
         setMode("video");
       }
     };

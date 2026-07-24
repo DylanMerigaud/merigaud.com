@@ -92,6 +92,15 @@ body {
   animation: rise-in 0.7s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
 }
 
+/* Flash guard: while the ink hero is loading (pre-ink set pre-paint, ink3d not
+   yet mounted), hold the headline hidden so it does not rise in on the shell and
+   again on the ink hero. Once ink3d mounts, this stops matching and .hero-rise
+   plays exactly once. */
+html.pre-ink:not([data-ink3d]) [data-hero-fade] .hero-rise {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
 @keyframes video-in {
   from {
     opacity: 0;
