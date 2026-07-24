@@ -14,18 +14,21 @@ export const TraceEffects = () => {
     let heroDim = document.querySelector<HTMLElement>("[data-hero-dim]");
     let heroFade = document.querySelector<HTMLElement>("[data-hero-fade]");
     const sheet = document.querySelector<HTMLElement>("[data-sheet]");
+    const spineEnd = document.querySelector<HTMLElement>("[data-spine-end]");
     const approveNode = document.querySelector<HTMLElement>('[data-node="approve"]');
     const nodes = document.querySelectorAll<HTMLElement>("[data-node]");
     const stamp = document.querySelector<HTMLElement>("[data-stamp]");
     const figures = document.querySelectorAll<HTMLVideoElement>("video[data-figure]");
     const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // The spine runs from the top of the paper sheet to the approve node.
+    // The channel runs the full height of the paper sheet, to the page-bottom
+    // anchor. The green ink still stops at the reading head, so the grey track
+    // below the last node stays unfilled: a deliberate "pending" tail to the end.
     const measure = () => {
-      if (spine === null || sheet === null || approveNode === null) return;
+      if (spine === null || sheet === null || spineEnd === null) return;
       const sheetTop = sheet.getBoundingClientRect().top + window.scrollY;
-      const nodeTop = approveNode.getBoundingClientRect().top + window.scrollY;
-      spine.style.height = `${String(nodeTop - sheetTop + 10)}px`;
+      const endTop = spineEnd.getBoundingClientRect().top + window.scrollY;
+      spine.style.height = `${String(endTop - sheetTop)}px`;
     };
     measure();
     const resizeObserver = new ResizeObserver(measure);
@@ -107,19 +110,29 @@ export const TraceEffects = () => {
         const rect = spine.getBoundingClientRect();
         if (rect.height > 0) {
           // The reading head sits at 72% of the viewport; the ink is drawn from
-          // the spine top down to it. `progress` is that fraction of the spine.
-          const progress = Math.min(
-            Math.max((viewportHeight * 0.72 - rect.top) / rect.height, 0),
-            1
-          );
-          spine.style.setProperty("--fill", String(progress));
-          // Every node reads the SAME progress: it lights the instant the ink
-          // front passes its own position on the spine, so the knob and the bar
-          // are the same green at the same moment, with no separate object to lag.
+          // the spine top down to it. `head` is that fraction of the spine.
+          const raw = (viewportHeight * 0.72 - rect.top) / rect.height;
+          const head = Math.min(Math.max(raw, 0), 1);
+          // The last (approve) node caps the green: the ink completes there, and
+          // the grey track below it stays a pending tail down to the page end.
+          let cap = 1;
+          if (approveNode !== null) {
+            const lastRect = approveNode.getBoundingClientRect();
+            cap = (lastRect.top + lastRect.height / 2 - rect.top) / rect.height;
+          }
+          const fill = Math.min(head, cap);
+          spine.style.setProperty("--fill", String(fill));
+          // The drawing-head bead shows only while the ink is still advancing; it
+          // fades out as the ink settles onto the last node (trace complete).
+          const headOp = Math.min(Math.max((cap - head) / 0.03, 0), 1);
+          spine.style.setProperty("--head-op", String(headOp));
+          // Every node reads the SAME head: it lights the instant the ink front
+          // passes its own position, so the knob and the bar are the same green at
+          // the same moment, with no separate object to lag.
           for (const node of nodes) {
             const nodeRect = node.getBoundingClientRect();
             const nodeFraction = (nodeRect.top + nodeRect.height / 2 - rect.top) / rect.height;
-            node.classList.toggle("is-filled", nodeFraction <= progress);
+            node.classList.toggle("is-filled", nodeFraction <= head);
           }
         }
       }

@@ -194,7 +194,9 @@ body {
   transform: translate(-50%, 50%);
   background-color: #eafff4;
   box-shadow: 0 0 16px 3px color-mix(in srgb, var(--color-stamp-dark) 80%, transparent);
-  opacity: calc(1 - var(--fill) * var(--fill));
+  /* Driven from JS: full while the ink advances, faded once it settles on the
+     last node so no bright bead is stranded over the pending grey tail. */
+  opacity: var(--head-op, 1);
 }
 
 /* Section nodes ride the channel: a hollow ring while pending, a glowing green

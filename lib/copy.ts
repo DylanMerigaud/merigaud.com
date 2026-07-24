@@ -160,18 +160,21 @@ export const testimonials = {
         "Dylan doesn't just write code, he thinks strategically about the user experience, business goals, and long-term scalability. He's the kind of engineer who proactively identifies problems before they arise, suggests smart solutions, and executes with precision.",
       name: "Christian Hamelin",
       title: "Co-founder @ Sprout",
+      avatar: "/testimonials/christian.jpg",
     },
     {
       quote:
         "His full-stack expertise and sharp product sense made a real difference. He has this rare ability to switch effortlessly between backend and frontend, always spotting potential issues early and offering smart, pragmatic fixes.",
       name: "Reda Benchraa",
       title: "Senior Software Engineer",
+      avatar: "/testimonials/reda.jpg",
     },
     {
       quote:
         "Dylan combines incredible speed of execution with a laser focus on quality: he gets things done fast, and he gets them done right. What really sets him apart is his strong customer-first mentality.",
       name: "Pascal Greilich",
       title: "Software Engineer",
+      avatar: "/testimonials/pascal.jpg",
     },
   ],
 } as const;

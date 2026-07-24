@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { testimonials } from "@/lib/copy";
 
 // Third-party proof: real, attributed LinkedIn recommendations from people who
@@ -20,10 +22,19 @@ export const TestimonialsSection = () => (
               <blockquote className="text-ink/85 leading-relaxed text-balance">
                 {item.quote}
               </blockquote>
-              <figcaption className="mt-4">
-                <span className="block font-semibold tracking-tight">{item.name}</span>
-                <span className="text-trace mt-1 block font-mono text-xs tracking-wide">
-                  {item.title}
+              <figcaption className="mt-5 flex items-center gap-3">
+                <Image
+                  src={item.avatar}
+                  alt={item.name}
+                  width={40}
+                  height={40}
+                  className="size-10 rounded-full object-cover"
+                />
+                <span className="block">
+                  <span className="block font-semibold tracking-tight">{item.name}</span>
+                  <span className="text-trace mt-0.5 block font-mono text-xs tracking-wide">
+                    {item.title}
+                  </span>
                 </span>
               </figcaption>
             </figure>
