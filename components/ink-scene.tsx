@@ -44,23 +44,24 @@ void main() {
   vec3 col;
   if (uIsRing > 0.5) {
     if (uDraw < uWindow.x) discard;
-    if (uTrackOn > 0.5) {
-      // Spine node: a bright bead on the SAME wire. Grey (track colour) before the
-      // ink arrives, then the wire's green once uFill lights it. The thin torus
-      // catches far less bloom than the fat bar, so it needs a higher glow (0.95 vs
-      // the bar's 0.7225) AND an even, un-banded fill to read as the same glowing
-      // green, not a matte olive ring beside a luminous bar.
-      vec3 lit = uBase + uGlow * 0.95;
-      col = mix(uTrackColor, lit, uFill);
-      // Lit bead is even; the unlit grey ring keeps the track's banding so it
-      // still reads as a piece of the same track.
-      shade = mix(shade, 1.0, uFill);
-    } else {
-      // Hero graph node: additive, fills as the graph draws on (unchanged).
-      float fill = max(smoothstep(uFillAt, uFillAt + 0.05, uDraw), uFill);
-      float pulse = smoothstep(0.09, 0.0, abs(t - uPulse));
-      col = uBase + uGlow * (pulse * 1.1 + fill * 0.85);
-    }
+    // A node (spine or hero graph) is a bright bead on the wire: clean grey
+    // (uTrackColor) while pending, the wire's glowing green once filled. Spine
+    // nodes fill by scroll (uFill); hero graph nodes fill as the graph inks in,
+    // reaching full green exactly as the inbound edge arrives (uFillAt is that
+    // edge's draw end, so the window ends AT uFillAt, never after: a terminal node
+    // whose edge finishes at draw 1.0 still fills). The thin torus catches far less
+    // bloom than the fat tube, so it needs a high glow (0.95) AND an even, un-banded
+    // fill to read as the same glowing green, not a dull matte olive donut.
+    float fill = max(smoothstep(uFillAt - 0.06, uFillAt, uDraw), uFill);
+    vec3 lit = uBase + uGlow * 0.95;
+    col = mix(uTrackColor, lit, fill);
+    // The routing pulse only rides an activated (green) node, so a pending grey
+    // one never flashes bright and snaps back to grey as the pulse passes.
+    float pulse = smoothstep(0.09, 0.0, abs(t - uPulse));
+    col += uGlow * pulse * 1.1 * fill;
+    // Lit bead is even; the unlit grey ring keeps the banding so it still reads
+    // as a piece of the same track.
+    shade = mix(shade, 1.0, fill);
   } else {
     bool undrawn = t > uDraw;
     // The undrawn part shows as a dim grey continuation on the SAME tube (one
@@ -297,11 +298,10 @@ const SpineWire = () => {
         : Math.max(document.querySelectorAll("[data-node]").length, 1);
     const rings = Array.from({ length: markerCount }, () => {
       const ring = makeInkMaterial({ window: [0, 0], fillAt: 2, isRing: true });
-      // A spine node is a piece of the SAME wire: grey (uTrackColor) ahead of the
-      // ink, and the wire's exact drawn green once uFill lights it. uTrackOn flips
-      // the shader to that track→wire-green mix, so uBase stays INK_BASE (the wire
-      // colour) and a filled knob is never a brighter, different green than the bar.
-      ring.uniforms.uTrackOn.value = 1;
+      // A spine node rides the wire: grey (uTrackColor) ahead of the ink, and the
+      // wire's exact drawn green once uFill lights it (fillAt: 2 keeps the draw-based
+      // fill off, so scroll's uFill is the only driver). uBase stays INK_BASE so a
+      // filled knob is never a different green than the bar.
       // Node draws over the wire it rides, never occluded by the tube surface.
       ring.material.depthTest = false;
       ring.material.depthWrite = false;
