@@ -37,16 +37,24 @@ varying vec2 vUv;
 
 void main() {
   float t = mix(uWindow.x, uWindow.y, vUv.x);
+  // Barrel shading gives the fat tube its volumetric look, but on the small node
+  // torus it just mottles the ring into a dull, uneven donut. Kept for the tube
+  // and the grey track; flattened on the lit bead below.
+  float shade = 0.82 + 0.34 * sin(vUv.y * 6.2831853);
   vec3 col;
   if (uIsRing > 0.5) {
     if (uDraw < uWindow.x) discard;
     if (uTrackOn > 0.5) {
-      // Spine node: a piece of the SAME wire. Grey (the track colour) when
-      // unfilled, and exactly the wire's drawn green when filled, so a knob never
-      // reads as a different, brighter green than the bar. (0.72 == the tube's
-      // uFill 0.85 * 0.85 base-glow contribution.)
-      vec3 lit = uBase + uGlow * 0.72;
+      // Spine node: a bright bead on the SAME wire. Grey (track colour) before the
+      // ink arrives, then the wire's green once uFill lights it. The thin torus
+      // catches far less bloom than the fat bar, so it needs a higher glow (0.95 vs
+      // the bar's 0.7225) AND an even, un-banded fill to read as the same glowing
+      // green, not a matte olive ring beside a luminous bar.
+      vec3 lit = uBase + uGlow * 0.95;
       col = mix(uTrackColor, lit, uFill);
+      // Lit bead is even; the unlit grey ring keeps the track's banding so it
+      // still reads as a piece of the same track.
+      shade = mix(shade, 1.0, uFill);
     } else {
       // Hero graph node: additive, fills as the graph draws on (unchanged).
       float fill = max(smoothstep(uFillAt, uFillAt + 0.05, uDraw), uFill);
@@ -65,7 +73,7 @@ void main() {
       col = uBase + uGlow * (pulse * 1.1 + uFill * 0.85);
     }
   }
-  col *= 0.82 + 0.34 * sin(vUv.y * 6.2831853);
+  col *= shade;
   gl_FragColor = vec4(col, 1.0);
 }
 `;
