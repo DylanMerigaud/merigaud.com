@@ -34,12 +34,12 @@ export const shouldRunInkHero = (): boolean => {
 
 // Runs before the hero paints (a raw string: no imports are available that
 // early), mirrors shouldRunInkHero(), and marks <html class="pre-ink"> so CSS
-// holds the headline hidden through the loading shell (no flash). Built from the
-// same query constants so it can never drift from the runtime gate above.
+// holds the headline hidden through the loading shell (no flash).
+//
+// This MUST stay a single plain string literal. Building it by interpolating the
+// query constants above made the production minifier mangle it into broken JS
+// (the IIFE threw, pre-ink was never set, the headline flashed). It only shows in
+// a minified build, not in dev. So: hand-mirror the same checks as
+// shouldRunInkHero() here, and keep them in sync by eye. Keep it literal.
 export const PRE_INK_SCRIPT =
-  "(function(){try{var d=document.documentElement,m=window.matchMedia;" +
-  `if(m('${REDUCED_MOTION}').matches)return;` +
-  `if(!m('${DESKTOP}').matches)return;` +
-  "var c=navigator.connection;if(c&&c.saveData===true)return;" +
-  "var g=false;try{g=!!document.createElement('canvas').getContext('webgl2')}catch(e){}" +
-  "if(g)d.classList.add('pre-ink')}catch(e){}})();";
+  "(function(){try{var d=document.documentElement,m=window.matchMedia;if(m('(prefers-reduced-motion: reduce)').matches)return;if(!m('(min-width: 768px)').matches)return;var c=navigator.connection;if(c&&c.saveData===true)return;var g=false;try{g=!!document.createElement('canvas').getContext('webgl2')}catch(e){}if(g)d.classList.add('pre-ink')}catch(e){}})();";
