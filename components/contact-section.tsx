@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { SectionMarker } from "@/components/section-marker";
 import { Stamp } from "@/components/stamp";
 import { contact, footer, site } from "@/lib/copy";
@@ -30,6 +32,22 @@ export const ContactSection = () => (
         <div className="mt-12 md:col-span-4 md:mt-6">
           <Stamp />
           <p className="stamp-note eyebrow text-trace mt-4">{contact.stampNote}</p>
+          {/* Affixed like the ID photo on a signed form: squared and thinly
+              ruled, not the round avatar the testimonials use for other people. */}
+          <figure className="mt-12">
+            <Image
+              src={contact.portrait.src}
+              alt={contact.portrait.alt}
+              width={contact.portrait.width}
+              height={contact.portrait.height}
+              sizes="128px"
+              className="portrait-id w-32"
+            />
+            <figcaption className="mt-3">
+              <span className="block font-semibold tracking-tight">{contact.portrait.name}</span>
+              <span className="eyebrow text-trace mt-1 block">{contact.portrait.role}</span>
+            </figcaption>
+          </figure>
         </div>
       </div>
 

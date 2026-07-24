@@ -266,6 +266,16 @@ export const contact = {
     "Remote from Mexico City, working US hours (GMT-6). On-site in NY/SF for key milestones. Paris available too.",
   stamp: "APPROVED",
   stampNote: "trace complete · human approved",
+  // The face under the stamp: the note says a human approved the run, this says
+  // which one. Last thing seen before the email button.
+  portrait: {
+    src: "/portrait.jpg",
+    width: 720,
+    height: 900,
+    alt: "Dylan Mérigaud",
+    name: "Dylan Mérigaud",
+    role: "freelance ai engineer",
+  },
 } as const;
 
 export const footer = {

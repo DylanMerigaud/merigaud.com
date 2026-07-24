@@ -389,6 +389,19 @@ html.pre-ink:not([data-ink3d]) [data-hero-fade] .hero-rise {
   }
 }
 
+/* ---------- portrait ---------- */
+
+/* Same rule and lift as .figure-card, so the ID photo reads as one more piece of
+   evidence on the sheet. The phone-camera wall is cooler and brighter than the
+   paper, so pull it a shade toward the cream and off full saturation. */
+.portrait-id {
+  height: auto;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  border-radius: 5px;
+  box-shadow: 0 2px 16px rgb(19 19 22 / 0.07);
+  filter: saturate(0.88) contrast(1.02) sepia(0.06);
+}
+
 /* ---------- the live run (ink3d hero) ---------- */
 
 @media (max-width: 767px) {
