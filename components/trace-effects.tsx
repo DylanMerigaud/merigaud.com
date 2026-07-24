@@ -11,7 +11,6 @@ import { scrollState } from "@/lib/scroll-state";
 export const TraceEffects = () => {
   useEffect(() => {
     const spine = document.querySelector<HTMLElement>("[data-spine]");
-    const spineFill = document.querySelector<HTMLElement>("[data-spine-fill]");
     let heroDim = document.querySelector<HTMLElement>("[data-hero-dim]");
     let heroFade = document.querySelector<HTMLElement>("[data-hero-fade]");
     const sheet = document.querySelector<HTMLElement>("[data-sheet]");
@@ -31,21 +30,6 @@ export const TraceEffects = () => {
     measure();
     const resizeObserver = new ResizeObserver(measure);
     if (sheet !== null) resizeObserver.observe(sheet);
-
-    const nodeObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) {
-            continue;
-          }
-
-          entry.target.classList.add("is-filled");
-          nodeObserver.unobserve(entry.target);
-        }
-      },
-      { rootMargin: "0px 0px -25% 0px" }
-    );
-    for (const node of nodes) nodeObserver.observe(node);
 
     const stampObserver = new IntersectionObserver(
       (entries) => {
@@ -119,14 +103,24 @@ export const TraceEffects = () => {
         // and controls from the tab order and the a11y tree, not just the mouse.
         heroFade.inert = fade < 0.1;
       }
-      if (spineFill !== null && spine !== null) {
+      if (spine !== null) {
         const rect = spine.getBoundingClientRect();
         if (rect.height > 0) {
+          // The reading head sits at 72% of the viewport; the ink is drawn from
+          // the spine top down to it. `progress` is that fraction of the spine.
           const progress = Math.min(
             Math.max((viewportHeight * 0.72 - rect.top) / rect.height, 0),
             1
           );
-          spineFill.style.transform = `scaleY(${String(progress)})`;
+          spine.style.setProperty("--fill", String(progress));
+          // Every node reads the SAME progress: it lights the instant the ink
+          // front passes its own position on the spine, so the knob and the bar
+          // are the same green at the same moment, with no separate object to lag.
+          for (const node of nodes) {
+            const nodeRect = node.getBoundingClientRect();
+            const nodeFraction = (nodeRect.top + nodeRect.height / 2 - rect.top) / rect.height;
+            node.classList.toggle("is-filled", nodeFraction <= progress);
+          }
         }
       }
       raf = window.requestAnimationFrame(frame);
@@ -136,7 +130,6 @@ export const TraceEffects = () => {
     return () => {
       window.cancelAnimationFrame(raf);
       resizeObserver.disconnect();
-      nodeObserver.disconnect();
       stampObserver.disconnect();
       figureObserver.disconnect();
     };
