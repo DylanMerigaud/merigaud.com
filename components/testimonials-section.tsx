@@ -17,12 +17,14 @@ export const TestimonialsSection = () => (
       </div>
       <ul className="mt-10 grid gap-x-10 gap-y-12 pl-7 md:grid-cols-3 md:pl-10">
         {testimonials.quotes.map((item) => (
-          <li key={item.name}>
-            <figure className="border-stamp/40 border-l-2 pl-5">
+          <li key={item.name} className="flex">
+            <figure className="border-stamp/40 flex flex-col border-l-2 pl-5">
               <blockquote className="text-ink/85 leading-relaxed text-balance">
                 {item.quote}
               </blockquote>
-              <figcaption className="mt-5 flex items-center gap-3">
+              {/* mt-auto anchors every caption to the bottom of its (equal-height)
+                  cell, so the avatars line up no matter the quote length. */}
+              <figcaption className="mt-auto flex items-center gap-3 pt-6">
                 <Image
                   src={item.avatar}
                   alt={item.name}
