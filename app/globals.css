@@ -143,7 +143,6 @@ body {
   width: 34px;
   transform: translateX(-17px);
   background-color: var(--color-ink-deep);
-  border-radius: 999px;
   box-shadow:
     inset 0 0 18px rgb(0 0 0 / 0.6),
     0 0 0 1px color-mix(in srgb, var(--color-ink) 45%, transparent);
