@@ -130,19 +130,36 @@ body {
 
 /* ---------- trace spine ---------- */
 
+/* The trace runs through a dark channel cut into the paper: the green ink needs
+   black to bloom against (it reads flat and thin on cream). The channel is
+   centered on the node rail (content-box left edge of the max-w-6xl container).
+   `--fill` (0..1), written per frame from the reading head, drives BOTH the ink
+   height and every node's lit state, so a node lights exactly as the ink reaches
+   it. One value, nothing to drift. */
 .spine {
   position: absolute;
   top: 0;
-  /* Sits exactly on the node rail: content-box left edge of the centered
-     max-w-6xl container (md:px-10). */
   left: max(2.5rem, calc((100% - 72rem) / 2 + 2.5rem));
-  width: 3px;
-  border-radius: 2px;
-  background-color: color-mix(in srgb, var(--color-trace) 32%, transparent);
-  /* Fraction of the trace drawn, written once per frame from the reading head.
-     The fill height AND every node's lit state read from this single value, so a
-     node lights exactly as the ink reaches it. One rule, nothing to drift. */
+  width: 34px;
+  transform: translateX(-17px);
+  background-color: var(--color-ink-deep);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0 18px rgb(0 0 0 / 0.6),
+    0 0 0 1px color-mix(in srgb, var(--color-ink) 45%, transparent);
   --fill: 0;
+}
+
+/* Grey track: the undrawn wire, a thin rail down the middle of the channel. */
+.spine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
+  border-radius: 3px;
+  background-color: color-mix(in srgb, var(--color-trace-dark) 42%, transparent);
 }
 
 /* Green ink, drawn top-down to the reading head. A height (not a scaleY) keeps
@@ -150,58 +167,58 @@ body {
 .spine-fill {
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
   height: calc(var(--fill) * 100%);
-  border-radius: 2px;
+  border-radius: 3px;
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--color-stamp) 86%, var(--color-stamp-dark)),
-    var(--color-stamp)
+    var(--color-stamp-dark),
+    color-mix(in srgb, var(--color-stamp-dark) 45%, var(--color-stamp))
   );
-  box-shadow: 0 0 9px 0 color-mix(in srgb, var(--color-stamp-dark) 42%, transparent);
+  box-shadow:
+    0 0 14px 1px color-mix(in srgb, var(--color-stamp-dark) 65%, transparent),
+    0 0 5px 0 var(--color-stamp-dark);
 }
 
-/* The drawing head: a bright bead riding the leading edge of the ink, fading out
-   as the trace completes so it never sits on top of the final node. */
+/* The drawing head: a hot bead riding the leading edge of the ink, fading out as
+   the trace completes so it never sits on top of the final node. */
 .spine-fill::after {
   content: "";
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   border-radius: 9999px;
   transform: translate(-50%, 50%);
-  background-color: var(--color-stamp-dark);
-  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--color-stamp-dark) 65%, transparent);
+  background-color: #eafff4;
+  box-shadow: 0 0 16px 3px color-mix(in srgb, var(--color-stamp-dark) 80%, transparent);
   opacity: calc(1 - var(--fill) * var(--fill));
 }
 
+/* Section nodes ride the channel: a hollow ring while pending, a glowing green
+   bead once the ink front reaches them. The dark ring lets the wire read as
+   passing behind the node. */
 .trace-node {
   position: absolute;
   top: 0.2rem;
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   border-radius: 9999px;
-  border: 2px solid var(--color-trace);
-  background-color: var(--color-paper);
-  /* The paper ring lets the spine pass visually through the node. */
-  box-shadow: 0 0 0 4px var(--color-paper);
-  transform: translateX(-4.5px);
+  border: 2px solid color-mix(in srgb, var(--color-trace-dark) 60%, transparent);
+  background-color: var(--color-ink-deep);
+  box-shadow: 0 0 0 3px var(--color-ink-deep);
+  transform: translateX(-6.5px);
   transition:
     border-color 0.28s ease,
     background-color 0.28s ease,
     box-shadow 0.28s ease;
 }
 
-.on-dark .trace-node {
-  background-color: var(--color-ink-deep);
-  box-shadow: 0 0 0 4px var(--color-ink-deep);
-}
-
-/* On mobile the DOM spine line is hidden, so the node dots would float as
-   orphans; hide them too (the mono section eyebrow still carries the stage). */
+/* On mobile the channel is hidden, so the node dots would float as orphans; hide
+   them too (the mono section eyebrow still carries the stage). */
 @media (max-width: 767px) {
   .trace-node {
     display: none;
@@ -209,19 +226,11 @@ body {
 }
 
 .trace-node.is-filled {
-  border-color: var(--color-stamp);
-  background-color: var(--color-stamp);
-  box-shadow:
-    0 0 0 4px var(--color-paper),
-    0 0 11px 1px color-mix(in srgb, var(--color-stamp-dark) 50%, transparent);
-}
-
-.on-dark .trace-node.is-filled {
   border-color: var(--color-stamp-dark);
   background-color: var(--color-stamp-dark);
   box-shadow:
-    0 0 0 4px var(--color-ink-deep),
-    0 0 11px 1px color-mix(in srgb, var(--color-stamp-dark) 55%, transparent);
+    0 0 0 3px var(--color-ink-deep),
+    0 0 13px 2px color-mix(in srgb, var(--color-stamp-dark) 65%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -232,8 +241,8 @@ body {
     display: none;
   }
   .trace-node {
-    border-color: var(--color-stamp);
-    background-color: var(--color-stamp);
+    border-color: var(--color-stamp-dark);
+    background-color: var(--color-stamp-dark);
   }
 }
 
