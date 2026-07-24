@@ -13,6 +13,28 @@ import { scrollState } from "@/lib/scroll-state";
 // over as the volumetric trace spine, visible through the sheet's gutter slit.
 export const InkHero = () => {
   const [isPlaying, setIsPlaying] = useState(true);
+  // Freeze the whole WebGL render loop when the page is not being looked at (tab
+  // hidden OR window blurred). The bloom composer is the heaviest thing running,
+  // and rAF already stops on a hidden tab, so the real saving is the blurred-but-
+  // visible case (another window on top): no reason to keep painting it.
+  const [frameloop, setFrameloop] = useState<"always" | "never">(() =>
+    document.visibilityState === "visible" && document.hasFocus() ? "always" : "never"
+  );
+
+  useEffect(() => {
+    const syncFrameloop = () => {
+      const isActive = document.visibilityState === "visible" && document.hasFocus();
+      setFrameloop(isActive ? "always" : "never");
+    };
+    window.addEventListener("focus", syncFrameloop);
+    window.addEventListener("blur", syncFrameloop);
+    document.addEventListener("visibilitychange", syncFrameloop);
+    return () => {
+      window.removeEventListener("focus", syncFrameloop);
+      window.removeEventListener("blur", syncFrameloop);
+      document.removeEventListener("visibilitychange", syncFrameloop);
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset["ink3d"] = "true";
@@ -61,6 +83,7 @@ export const InkHero = () => {
     <header className="on-dark bg-ink-deep sticky top-0 z-0 h-svh">
       <div aria-hidden="true" className="fixed inset-0 h-svh w-screen">
         <Canvas
+          frameloop={frameloop}
           camera={{ fov: 40, position: [0, -0.1, 7.7] }}
           // Cap DPR at 1.5: the bloom already blurs, so full retina detail is
           // wasted pixels through a multi-pass composer that runs the whole
