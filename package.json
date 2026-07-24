@@ -2,6 +2,14 @@
   "name": "merigaud.com",
   "version": "0.1.0",
   "private": true,
+  "description": "Portfolio of Dylan Mérigaud, freelance AI full-stack engineer for fintech. Next.js, React Three Fiber, TypeScript strict.",
+  "author": "Dylan Mérigaud",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DylanMerigaud/merigaud.com.git"
+  },
+  "homepage": "https://merigaud.com",
   "type": "module",
   "packageManager": "pnpm@10.24.0",
   "engines": {

@@ -111,6 +111,13 @@ const casePages: CasePage[] = [
         ],
       },
       {
+        heading: "It found a real one in Medusa",
+        paragraphs: [
+          "Run against Medusa, the open-source commerce platform, it surfaced exactly the class its rulebook is built for: check-then-act races that bypass amount guards. Payment capture and refund read the running totals then write with no row lock, and promotion usage writes absolute budget counters under a cart-scoped lock, so concurrent calls can over-capture, over-refund, or blow past a campaign budget.",
+          'I reported it as medusajs/medusa#16012. A Medusa maintainer confirmed the reasoning ("your argument makes sense"), labeled it a bug, and opened it for a fix under help-wanted. The finding and the acknowledgement are public on the issue.',
+        ],
+      },
+      {
         heading: "Read-only, reproducible, honest",
         paragraphs: [
           'It never edits your code, opens PRs, or files issues. "No findings" is a valid outcome; it does not force findings out of a repo that has no money code.',

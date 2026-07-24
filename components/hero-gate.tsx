@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Hero } from "@/components/hero";
 import { HeroContent } from "@/components/hero-content";
+import { shouldRunInkHero } from "@/lib/hero-mode";
 
 // A dark, media-free hero shell. It is the SSR/no-JS baseline (real headline and
 // CTAs for SEO) and the loading state while the ink3d chunk arrives, so the page
@@ -26,32 +27,17 @@ const InkHero = dynamic(
   }
 );
 
-const hasWebgl = (): boolean => {
-  try {
-    const canvas = document.createElement("canvas");
-    return canvas.getContext("webgl2") !== null;
-  } catch {
-    return false;
-  }
-};
-
 // Decides the hero once, on the client: desktop + WebGL2 + motion-ok gets the
-// ink3d experience; everyone else gets the video hero. Until decided, the dark
-// shell shows (SSR default), so no poster image ever flashes.
+// ink3d experience; everyone else gets the video hero. The decision lives in
+// lib/hero-mode (shouldRunInkHero), shared with the pre-paint flash guard so they
+// cannot drift. Until decided, the dark shell shows (SSR default), so no poster
+// image ever flashes.
 export const HeroGate = () => {
   const [mode, setMode] = useState<"shell" | "video" | "ink">("shell");
 
   useEffect(() => {
     const decide = () => {
-      const isWantsMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-      const connection: unknown = Reflect.get(navigator, "connection");
-      const isSavesData =
-        typeof connection === "object" &&
-        connection !== null &&
-        "saveData" in connection &&
-        connection.saveData === true;
-      if (isWantsMotion && isDesktop && !isSavesData && hasWebgl()) {
+      if (shouldRunInkHero()) {
         // Warm the chunk so the shell-to-ink handoff is a single frame.
         void import("@/components/ink-hero");
         setMode("ink");

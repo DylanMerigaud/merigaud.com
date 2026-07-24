@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 
 import { fontMono, fontSans } from "@/app/fonts";
 import { site } from "@/lib/copy";
+import { PRE_INK_SCRIPT } from "@/lib/hero-mode";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
@@ -56,11 +57,8 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
           ink hero mounts, instead of flashing shell → hidden → in. No-JS and
           reduced-motion never get the class, so they show the headline immediately. */}
       <script
-        // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- pre-paint flash guard; static, self-authored
-        dangerouslySetInnerHTML={{
-          __html:
-            "(function(){try{var d=document.documentElement,m=window.matchMedia;if(m('(prefers-reduced-motion: reduce)').matches)return;if(!m('(min-width: 768px)').matches)return;var c=navigator.connection;if(c&&c.saveData===true)return;var g=false;try{g=!!document.createElement('canvas').getContext('webgl2')}catch(e){}if(g)d.classList.add('pre-ink')}catch(e){}})();",
-        }}
+        // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- pre-paint flash guard; static, self-authored (lib/hero-mode)
+        dangerouslySetInnerHTML={{ __html: PRE_INK_SCRIPT }}
       />
       <a
         href="#work"

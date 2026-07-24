@@ -1,5 +1,6 @@
-// Every word on the site lives here. Metadata, JSON-LD, and components all
-// render from this file; edit copy here, never in components.
+// The site's copy and structured data. Metadata, JSON-LD, and the home-page
+// components render from here; edit copy here, never in components. The longer
+// case-study prose lives in lib/work-pages.ts.
 
 export const site = {
   url: "https://dylan.merigaud.com",
@@ -29,10 +30,17 @@ export const hero = {
   videoPlay: "Play video",
 } as const;
 
-type WorkLink = {
+export type WorkLink = {
   label: string;
   href: string;
 };
+
+// The one rule for the primary CTA: the clickable live demo is the shortest
+// trust path, so it becomes the single filled button (everything else stays a
+// quiet text link). Shared by the work list and the case page so they can never
+// disagree on which link is primary.
+export const primaryLink = (links: readonly WorkLink[]): WorkLink | undefined =>
+  links.find((link) => /demo|playground/i.test(link.label));
 
 export type WorkItem = {
   stage: string;
@@ -124,6 +132,10 @@ export const work: WorkItem[] = [
     links: [
       { label: "Case study", href: "/work/fintech-roast" },
       { label: "GitHub", href: "https://github.com/DylanMerigaud/fintech-roast" },
+      {
+        label: "Bug found in Medusa",
+        href: "https://github.com/medusajs/medusa/issues/16012",
+      },
       {
         label: "Sample report",
         href: "https://github.com/DylanMerigaud/fintech-roast/blob/main/docs/sample-report.md",

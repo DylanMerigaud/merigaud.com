@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { WorkFigure } from "@/components/work-figure";
-import { site } from "@/lib/copy";
+import { primaryLink, site } from "@/lib/copy";
 import { caseSlugs, getCasePage } from "@/lib/work-pages";
 
 export const generateStaticParams = () => caseSlugs.map((slug) => ({ slug }));
@@ -35,6 +35,10 @@ const CaseStudyPage = async ({ params }: PageParams) => {
   const result = getCasePage(slug);
   if (result === null) notFound();
   const { page, item } = result;
+  // The demo/case links, minus the self-referential /work link, with the live
+  // demo promoted to the one filled button (same rule as the work list).
+  const externalLinks = item.links.filter((link) => !link.href.startsWith("/work"));
+  const primary = primaryLink(externalLinks);
 
   const breadcrumbs = {
     "@context": "https://schema.org",
@@ -68,29 +72,25 @@ const CaseStudyPage = async ({ params }: PageParams) => {
         <p className="text-ink/75 mt-4 max-w-2xl leading-relaxed">{page.intro}</p>
 
         <ul className="mt-8 flex flex-wrap items-center gap-4">
-          {item.links
-            .filter((link) => !link.href.startsWith("/work"))
-            .map((link, index) =>
-              index === 0 && /demo|playground/i.test(link.label) ? (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="link-arrow bg-stamp hover:bg-stamp/85 inline-flex min-h-11 items-center rounded-md px-5 py-2.5 font-medium text-white transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
+          {externalLinks.map((link) => (
+            <li key={link.href}>
+              {link === primary ? (
+                <a
+                  href={link.href}
+                  className="link-arrow bg-stamp hover:bg-stamp/85 inline-flex min-h-11 items-center rounded-md px-5 py-2.5 font-medium text-white transition-colors"
+                >
+                  {link.label}
+                </a>
               ) : (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              )
-            )}
+                <a
+                  href={link.href}
+                  className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+                >
+                  {link.label}
+                </a>
+              )}
+            </li>
+          ))}
         </ul>
 
         {/* Spec strip: hard, checkable facts up top for a scanning CTO. */}
@@ -109,8 +109,11 @@ const CaseStudyPage = async ({ params }: PageParams) => {
             {page.sections.map((section) => (
               <section key={section.heading} className="max-w-[62ch]">
                 <h2 className="text-2xl font-semibold tracking-tight">{section.heading}</h2>
-                {section.paragraphs.map((paragraph) => (
-                  <p key={paragraph.slice(0, 32)} className="text-ink/75 mt-4 leading-relaxed">
+                {section.paragraphs.map((paragraph, index) => (
+                  <p
+                    key={`${section.heading}-${String(index)}`}
+                    className="text-ink/75 mt-4 leading-relaxed"
+                  >
                     {paragraph}
                   </p>
                 ))}
