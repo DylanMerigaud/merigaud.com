@@ -23,8 +23,10 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og.jpg",
-        width: 1200,
-        height: 630,
+        // Shot at 2x the 1200x630 card so it stays crisp on retina timelines;
+        // scripts/generate-og.ts is the source of both the file and these numbers.
+        width: 2400,
+        height: 1260,
         alt: "Dylan Mérigaud, freelance AI full-stack engineer for fintech. Code decides the money. AI reads the mess.",
       },
     ],

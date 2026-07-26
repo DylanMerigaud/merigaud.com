@@ -30,6 +30,14 @@ export const hero = {
   videoPlay: "Play video",
 } as const;
 
+// What the hero's live run prints once the invoice clears, and what the social
+// poster freezes as its proof line. Shared so the two can never disagree.
+export const runReceipt = {
+  vendor: "NORDWIND SUPPLY",
+  amount: "$48,250.00 · NET 30",
+  approved: "APPROVED · human in the loop",
+} as const;
+
 export type WorkLink = {
   label: string;
   href: string;

@@ -26,7 +26,8 @@
     "typecheck": "tsc --noEmit",
     "knip": "knip",
     "validate": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run knip",
-    "hero:generate": "tsx scripts/generate-hero.ts"
+    "hero:generate": "tsx scripts/generate-hero.ts",
+    "og:generate": "tsx scripts/generate-og.ts"
   },
   "dependencies": {
     "@react-three/fiber": "^9.6.1",
@@ -49,6 +50,7 @@
     "@types/three": "^0.185.1",
     "eslint": "^10.7",
     "knip": "^6.26.0",
+    "playwright-core": "^1.62.0",
     "prettier": "^3.9.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { HeroContent } from "@/components/hero-content";
+import { runReceipt } from "@/lib/copy";
 import { scrollState } from "@/lib/scroll-state";
 
 // The hero as a live run: a messy vendor invoice lands, the AI visibly reads
@@ -176,15 +177,15 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
       {/* The run receipt: where the extracted mess lands as typed data. */}
       <div aria-hidden="true" className="run-receipt eyebrow">
         <p className="run-receipt-line" data-slot="vendor">
-          NORDWIND SUPPLY
+          {runReceipt.vendor}
         </p>
         <p className="run-receipt-line" data-slot="amount">
-          $48,250.00 · NET 30
+          {runReceipt.amount}
         </p>
         <p className="run-receipt-status">
           <span className="run-status-reading">status: reading…</span>
           <span className="run-status-routing">status: routing…</span>
-          <span className="run-status-approved">APPROVED · human in the loop</span>
+          <span className="run-status-approved">{runReceipt.approved}</span>
         </p>
       </div>
 
