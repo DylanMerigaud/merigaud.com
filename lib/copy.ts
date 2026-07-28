@@ -257,7 +257,7 @@ export const engagement = {
     },
     {
       title: "Available now.",
-      body: "Remote from Mexico City (GMT-6, full overlap with US hours), on-site in NY or SF for key milestones, Paris too. Fixed-scope pilots and two to four week builds.",
+      body: "Remote, working US hours with full overlap, on-site in NY or SF for key milestones, Paris too. Fixed-scope pilots and two to four week builds.",
     },
   ],
   pricing: "Pilots and builds are fixed-price, hourly for open-ended work, rates on the call.",
@@ -270,8 +270,7 @@ export const contact = {
   heading: "Building AI into a fintech product? Let's talk.",
   ctaEmailLabel: "dylan@merigaud.com",
   ctaCallLabel: "Book 30 min",
-  location:
-    "Remote from Mexico City, working US hours (GMT-6). On-site in NY/SF for key milestones. Paris available too.",
+  location: "Remote, working US hours. On-site in NY/SF for key milestones. Paris available too.",
   stamp: "APPROVED",
   stampNote: "trace complete · human approved",
   // The face under the stamp: the note says a human approved the run, this says
@@ -328,14 +327,12 @@ export const jsonLd = {
           "Next.js",
           "TypeScript",
         ],
-        workLocation: {
-          "@type": "Place",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: "Mexico City",
-            addressCountry: "MX",
-          },
-        },
+        // No workLocation on purpose (Dylan, 07-28). It used to declare Mexico
+        // City, which is the framing being dropped everywhere. Naming a
+        // different city here instead would be worse than saying nothing: this
+        // is machine-readable structured data, so an inaccurate address is an
+        // explicit claim to Google rather than a soft profile field. The prose
+        // says "US hours" and stops there, and so does this.
         sameAs: [site.links.linkedin, site.links.github, site.links.npm],
       },
     },
