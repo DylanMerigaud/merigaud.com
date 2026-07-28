@@ -642,10 +642,16 @@ export const formatArticleDate = (iso: string): string =>
     timeZone: "UTC",
   });
 
+// `stage` and `index` place the homepage Notes section on the trace, between
+// policy (05) and scope (07). Keep them in step with the stages in lib/copy.ts.
 export const notes = {
   stage: "record",
-  index: "04",
+  index: "06",
   eyebrow: "the record",
+  // The marker label on the homepage. Separate from `eyebrow` because the marker
+  // already prints the stage: "06 · record / the record" stutters, and the
+  // breadcrumb on /blog wants the noun, not this claim.
+  sectionLabel: "published here first",
   heading: "Notes",
   intro:
     "Long-form writing on the parts that survive real usage. Published here first, syndicated after.",

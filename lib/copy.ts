@@ -243,7 +243,7 @@ export const approach = {
 
 export const engagement = {
   stage: "scope",
-  index: "06",
+  index: "07",
   eyebrow: "how we start",
   heading: "Work with me",
   rows: [
@@ -265,7 +265,7 @@ export const engagement = {
 
 export const contact = {
   stage: "approve",
-  index: "07",
+  index: "08",
   eyebrow: "let's talk",
   heading: "Building AI into a fintech product? Let's talk.",
   ctaEmailLabel: "dylan@merigaud.com",
