@@ -701,6 +701,61 @@ html.pre-ink:not([data-ink3d]) [data-hero-fade] .hero-rise {
   }
 }
 
+/* ---------- notes (long-form) ---------- */
+
+/* A code panel is the spine's dark channel, reused: the green ink needs black to
+   bloom against, and the same inset makes it read as one more thing cut into the
+   paper rather than a widget dropped on top. */
+.code-block {
+  margin: 0;
+  padding: 1.25rem 1.35rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  background-color: var(--color-ink-deep);
+  color: color-mix(in srgb, var(--color-paper) 92%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  tab-size: 2;
+  box-shadow:
+    inset 0 0 18px rgb(0 0 0 / 0.6),
+    0 0 0 1px color-mix(in srgb, var(--color-ink) 45%, transparent);
+}
+
+/* The scroll container is the focus target for keyboard users when the sample is
+   wider than the column, so it needs to be reachable and visibly outlined. */
+.code-block:focus-visible {
+  outline-color: var(--color-stamp-dark);
+}
+
+.code-inline {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--color-ink) 8%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+.prose-link {
+  color: var(--color-stamp);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-stamp) 40%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.prose-link:hover {
+  text-decoration-color: var(--color-stamp);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose-link {
+    transition: none;
+  }
+}
+
 .figure-pause {
   position: absolute;
   bottom: 0.6rem;

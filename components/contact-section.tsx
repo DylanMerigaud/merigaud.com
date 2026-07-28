@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { SectionMarker } from "@/components/section-marker";
 import { Stamp } from "@/components/stamp";
@@ -55,9 +56,20 @@ export const ContactSection = () => (
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           {footer.links.map((link) => (
             <li key={link.href}>
-              <a href={link.href} className="eyebrow text-trace hover:text-ink transition-colors">
-                {link.label}
-              </a>
+              {/* Internal routes go through Link so they prefetch like the rest of
+                  the site; the outbound profiles stay plain anchors. */}
+              {link.href.startsWith("/") ? (
+                <Link
+                  href={link.href}
+                  className="eyebrow text-trace hover:text-ink transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a href={link.href} className="eyebrow text-trace hover:text-ink transition-colors">
+                  {link.label}
+                </a>
+              )}
             </li>
           ))}
         </ul>

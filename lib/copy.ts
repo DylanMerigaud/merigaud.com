@@ -289,6 +289,7 @@ export const contact = {
 export const footer = {
   note: "© 2026 Dylan Mérigaud",
   links: [
+    { label: "Notes", href: "/blog" },
     { label: "LinkedIn", href: site.links.linkedin },
     { label: "GitHub", href: site.links.github },
     { label: "npm", href: site.links.npm },
