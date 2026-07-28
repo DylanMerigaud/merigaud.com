@@ -20,3 +20,9 @@ next-env.d.ts
 # hero generation working files (finals are committed in public/)
 /scripts/out/
 .env*
+
+# claude code local state: worktrees carry their own node_modules and .next,
+# so an unguarded `git add -A` would stage ~800MB. Narrow on purpose, so real
+# project config (.claude/settings.json, .claude/skills/) stays trackable.
+/.claude/worktrees/
+/.claude/auto-worktree
