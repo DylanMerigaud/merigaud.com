@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { TrackClicks } from "@dylanmerigaud/microsaas-kit/analytics/components";
 import { Analytics } from "@vercel/analytics/next";
 
 import { fontMono, fontSans } from "@/app/fonts";
+import { ConsentBanner } from "@/components/consent-banner";
+import { PostHogClient } from "@/components/posthog-client";
+import { ANALYTICS_CLICK_RULES } from "@/lib/analytics";
 import { site } from "@/lib/copy";
 import { PRE_INK_SCRIPT } from "@/lib/hero-mode";
 import "@/app/globals.css";
@@ -70,6 +74,9 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
       </a>
       {children}
       <Analytics />
+      <PostHogClient />
+      <TrackClicks rules={ANALYTICS_CLICK_RULES} />
+      <ConsentBanner />
     </body>
   </html>
 );

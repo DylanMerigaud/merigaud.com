@@ -8,6 +8,11 @@ export const WorkSection = () => (
   <section
     id="work"
     aria-label="Selected work"
+    // aria-label reads "Selected work", not "work-list"; TrackClicks falls
+    // back to it when data-ph-surface is absent, so it is set explicitly here
+    // to name every demo and repo link in this section (both the per-item
+    // links and the "also in the trace" links further down) consistently.
+    data-ph-surface="work-list"
     tabIndex={-1}
     className="pt-24 pb-24 focus:outline-none md:pt-32 md:pb-32"
   >

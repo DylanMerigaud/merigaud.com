@@ -14,7 +14,7 @@ export const ContactSection = () => (
           <h2 className="mt-8 max-w-3xl text-4xl font-semibold tracking-tight text-balance md:text-5xl">
             {contact.heading}
           </h2>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div data-ph-surface="contact" className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href={`mailto:${site.email}`}
               className="bg-ink text-paper inline-flex min-h-12 items-center rounded-md px-7 py-3.5 text-lg font-medium transition-opacity hover:opacity-85"
@@ -52,7 +52,10 @@ export const ContactSection = () => (
         </div>
       </div>
 
-      <footer className="border-ink/15 mt-24 border-t py-8 pl-7 md:flex md:items-center md:justify-between md:pl-10">
+      <footer
+        data-ph-surface="footer"
+        className="border-ink/15 mt-24 border-t py-8 pl-7 md:flex md:items-center md:justify-between md:pl-10"
+      >
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           {footer.links.map((link) => (
             <li key={link.href}>

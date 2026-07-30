@@ -44,6 +44,7 @@ export const HeroContent = ({
       {hero.sub}
     </p>
     <div
+      data-ph-surface="hero"
       className="hero-rise mt-10 flex flex-wrap items-center gap-4"
       style={{ animationDelay: "0.55s" }}
     >

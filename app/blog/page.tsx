@@ -68,7 +68,10 @@ export default function NotesIndexPage() {
           </ul>
         )}
 
-        <div className="border-ink/15 mt-16 flex flex-wrap items-center gap-6 border-t pt-10">
+        <div
+          data-ph-surface="blog-index"
+          className="border-ink/15 mt-16 flex flex-wrap items-center gap-6 border-t pt-10"
+        >
           <a
             href={`mailto:${site.email}`}
             className="bg-ink text-paper inline-flex min-h-11 items-center rounded-md px-6 py-3 font-medium transition-opacity hover:opacity-85"

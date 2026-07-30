@@ -24,4 +24,16 @@ export default [
       "unicorn/no-process-exit": "off",
     },
   },
+
+  // instrumentation.ts reads process.env.NEXT_RUNTIME to keep posthog-node out
+  // of the edge bundle. NEXT_RUNTIME is a Next-injected build constant, not
+  // app config, so it does not belong in lib/env.ts the way every other env
+  // var on this site does; this file is the one exception, same shape as the
+  // scripts/** relaxation above.
+  {
+    files: ["instrumentation.ts"],
+    rules: {
+      "no-restricted-syntax": "off",
+    },
+  },
 ];

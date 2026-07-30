@@ -20,6 +20,9 @@ next-env.d.ts
 # hero generation working files (finals are committed in public/)
 /scripts/out/
 .env*
+# ...except the template every real .env.local is copied from, which has no
+# secret in it (the PostHog key it documents is a write-only public token).
+!.env.example
 
 # claude code local state: worktrees carry their own node_modules and .next,
 # so an unguarded `git add -A` would stage ~800MB. Narrow on purpose, so real

@@ -302,6 +302,13 @@ export const notFound = {
   cta: "Back to the trace",
 } as const;
 
+// components/consent-banner.tsx renders this; it never authors copy itself.
+export const consentBanner = {
+  text: "This site uses cookies for analytics.",
+  accept: "Accept",
+  decline: "Decline",
+} as const;
+
 export const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [

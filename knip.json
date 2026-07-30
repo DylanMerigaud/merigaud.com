@@ -1,5 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreDependencies": ["postprocessing"],
-  "ignore": [".claude/**"]
+  "ignore": [".claude/**", "lib/dead-code-stub.ts"]
 }
