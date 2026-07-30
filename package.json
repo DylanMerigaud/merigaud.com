@@ -17,9 +17,9 @@
   },
   "prettier": "@dylanmerigaud/config/prettier",
   "scripts": {
-    "dev": "next dev --experimental-next-config-strip-types",
-    "build": "next build --experimental-next-config-strip-types",
-    "start": "next start --experimental-next-config-strip-types",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,mts,mjs,css,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,mts,mjs,css,json,md}\"",
@@ -30,7 +30,7 @@
     "og:generate": "tsx scripts/generate-og.ts"
   },
   "dependencies": {
-    "@dylanmerigaud/microsaas-kit": "^0.1.6",
+    "@dylanmerigaud/microsaas-kit": "^0.1.7",
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
     "@t3-oss/env-nextjs": "^0.13.11",

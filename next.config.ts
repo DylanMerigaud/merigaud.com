@@ -1,54 +1,48 @@
 import type { NextConfig } from "next";
 
+/**
+ * PostHog reverse-proxy config, DUPLICATED here as local literals rather than imported from
+ * `@dylanmerigaud/microsaas-kit/analytics`'s `posthogRewrites(POSTHOG_PROXY_PATH)`, which is the
+ * source of truth these three rules must keep matching. `next.config.ts` is the one place in
+ * this site that structurally cannot reach the kit: the kit ships ESM-only (no `require`
+ * condition in its `exports` map), and Next's loader for `next.config.ts` transpiles it to
+ * CommonJS before running it (`module: { type: "commonjs" }`, regardless of this project's own
+ * `"type": "module"`), which downlevels even a dynamic `import()` back into a `require()` call
+ * (VERIFIED: reproduced `ERR_PACKAGE_PATH_NOT_EXPORTED` from a dynamic import too, at the first
+ * `rewrites()` invocation rather than at config-load time). There is no supported way to make an
+ * ESM-only package resolve inside this specific file; every OTHER file that imports the kit's
+ * `/analytics` subpath (`proxy.ts`, `components/posthog-client.tsx`, `lib/analytics.ts`,
+ * `instrumentation.ts`) is bundled by Next's real build pipeline instead of this special-cased
+ * config loader, and does so with no issue.
+ */
+const POSTHOG_PROXY_PATH = "/hue";
+const POSTHOG_INGESTION_HOST = "https://us.i.posthog.com";
+const POSTHOG_ASSET_HOST = "https://us-assets.i.posthog.com";
+
 // Baseline hardening: drop the X-Powered-By fingerprint and set the security
 // headers a public site is judged on. Deliberately minimal.
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  /**
-   * Works around a kit packaging defect (VERIFIED by build failure, not guessed; see
-   * lib/dead-code-stub.ts): `@dylanmerigaud/microsaas-kit/analytics/components` co-bundles
-   * `ConsentBanner` (needs class-variance-authority, radix-ui, and, via the kit's own `cn()`
-   * helper, clsx + tailwind-merge) in the same barrel as `PostHogClient`/`TrackClicks`
-   * (app/layout.tsx, which this site does need), so importing either of the latter two also
-   * resolves `ConsentBanner`'s dependencies, even though this site imports neither
-   * `ConsentBanner` nor shadcn. This is the pattern Next's own v16 upgrade guide documents for
-   * exactly this shape of problem (a bundle transitively reaching code it cannot run): alias the
-   * unreachable dependency to an empty module. All four are dead in every bundle, so all four
-   * alias unconditionally.
-   */
-  turbopack: {
-    resolveAlias: {
-      "class-variance-authority": "./lib/dead-code-stub.ts",
-      "radix-ui": "./lib/dead-code-stub.ts",
-      clsx: "./lib/dead-code-stub.ts",
-      "tailwind-merge": "./lib/dead-code-stub.ts",
-    },
-  },
   // PostHog's own endpoints end in a slash, and Next's built-in trailing-slash
   // redirect would bounce every event POST before it reaches the rewrite
   // below. This switch is site-wide, so proxy.ts re-applies the same redirect
   // for real pages; without that, every page would answer on two URLs and
   // split its own SEO.
   skipTrailingSlashRedirect: true,
-  /**
-   * `posthogRewrites`/`POSTHOG_PROXY_PATH` are loaded with a DYNAMIC import inside the function
-   * body rather than a static top-level one: the kit ships ESM-only (no `require` condition in
-   * its `exports` map), and Next's DEFAULT loader for `next.config.ts` transpiles it to
-   * CommonJS before running it (`module: { type: "commonjs" }`, regardless of this project's own
-   * `"type": "module"`), lowering even a dynamic `import()` back down to a `require()` call that
-   * cannot see an ESM-only package's exports at all (VERIFIED: reproduced `ERR_PACKAGE_PATH_NOT_
-   * EXPORTED` at the first `rewrites()` invocation with the default loader).
-   *
-   * The fix is `--experimental-next-config-strip-types` (package.json's dev/build/start
-   * scripts): it switches `next.config.ts` to Node's own native TypeScript loader (Node 22.10+),
-   * which runs this file through the REAL ESM graph, so the dynamic import below resolves
-   * normally. `rewrites` already supports returning a Promise, so no other change is needed.
-   */
-  rewrites: async () => {
-    const { POSTHOG_PROXY_PATH, posthogRewrites } =
-      await import("@dylanmerigaud/microsaas-kit/analytics");
-    return posthogRewrites(POSTHOG_PROXY_PATH);
-  },
+  // Mirrors the kit's own `posthogRewrites(POSTHOG_PROXY_PATH)`: `/static` and `/array` come from
+  // the asset host, the catch-all takes everything else (events, flags, replay chunks) and MUST
+  // stay last, since it would otherwise swallow the two specific rules above it.
+  rewrites: () => [
+    {
+      source: `${POSTHOG_PROXY_PATH}/static/:path*`,
+      destination: `${POSTHOG_ASSET_HOST}/static/:path*`,
+    },
+    {
+      source: `${POSTHOG_PROXY_PATH}/array/:path*`,
+      destination: `${POSTHOG_ASSET_HOST}/array/:path*`,
+    },
+    { source: `${POSTHOG_PROXY_PATH}/:path*`, destination: `${POSTHOG_INGESTION_HOST}/:path*` },
+  ],
   redirects: () => [
     // Canonical host is dylan.merigaud.com; the apex and www redirect to it.
     {
