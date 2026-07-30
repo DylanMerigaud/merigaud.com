@@ -293,6 +293,7 @@ export const footer = {
     { label: "GitHub", href: site.links.github },
     { label: "npm", href: site.links.npm },
     { label: "Calendly", href: site.links.calendly },
+    { label: "Privacy", href: "/privacy" },
   ],
 } as const;
 
@@ -305,8 +306,74 @@ export const notFound = {
 // components/consent-banner.tsx renders this; it never authors copy itself.
 export const consentBanner = {
   text: "This site uses cookies for analytics.",
+  privacyLabel: "Privacy",
   accept: "Accept",
   decline: "Decline",
+} as const;
+
+// app/privacy/page.tsx renders this; the page authors nothing itself.
+export const privacy = {
+  eyebrow: "privacy",
+  heading: "Privacy",
+  intro:
+    "What this site tracks, why, and who sees it. No forms, no accounts, no ad trackers, nothing sold.",
+  updatedLabel: "Last updated",
+  updatedAt: "2026-07-30",
+  updated: "July 30, 2026",
+  backCta: "Back to the trace",
+  sections: [
+    {
+      heading: "Analytics",
+      paragraphs: [
+        "PostHog runs product analytics: pageviews, autocapture of clicks, and Core Web Vitals, the load and responsiveness numbers Google uses for ranking.",
+        "Four named events track outbound intent: email_click, call_click, demo_click, repo_click. Each just records that a link of that kind was clicked and which part of the page it was in.",
+        "Events go through this site's own domain, not a third-party one: PostHog is proxied at /hue.",
+        "Vercel Analytics runs alongside it: anonymous pageviews. Vercel is also this site's host.",
+      ],
+    },
+    {
+      heading: "Session replay",
+      paragraphs: [
+        "PostHog records session replay, but only on /blog and /work pages. Every other route, the homepage included, is excluded by default.",
+        "All input is masked, though there is little to mask: this site has no forms, no login, no accounts, nothing typed to capture in the first place.",
+      ],
+    },
+    {
+      heading: "Cookies and consent",
+      paragraphs: [
+        "Visiting from the EU, the EEA, the UK, Switzerland, or Gibraltar gets you a banner before anything identifiable is captured.",
+        "Decline and PostHog switches to a cookieless rotating hash rather than turning off: you're still counted in the pageview total, never identified, never followed across sessions. Accept and it behaves like it does for everyone else from that point on.",
+        "Everyone outside that list is captured in normal cookie mode from the first pageview, no banner.",
+        "Your region is resolved once, server-side, from the hosting network's own IP geolocation, into a small cookie named cw that just records which mode applies. Your browser never re-derives your location.",
+      ],
+    },
+    {
+      heading: "Error reporting",
+      paragraphs: [
+        "If something breaks, PostHog is told: unhandled errors and rejections in your browser, and, on the server, the request path, method, and matched route. Never the request body, never anything you typed.",
+      ],
+    },
+    {
+      heading: "What isn't collected",
+      paragraphs: [
+        "No forms, no newsletter, no account, no payment. There is nothing here to fill in.",
+        "Every conversion on this site is a mailto: link or an outbound link to Calendly. Click one and you're on Dylan's email or on Calendly, each governed by its own policy, not this one.",
+      ],
+    },
+    {
+      heading: "Who processes this",
+      paragraphs: [
+        "Vercel: hosting, anonymous analytics. PostHog: product analytics, session replay, error reporting. That's the whole list.",
+        "Nothing here is sold, rented, or shared for advertising. No ad trackers, no cross-site tracking.",
+      ],
+    },
+    {
+      heading: "Questions or requests",
+      paragraphs: [
+        "Email dylan@merigaud.com: what's held about you, a deletion request, or just a question about this page.",
+      ],
+    },
+  ],
 } as const;
 
 export const jsonLd = {

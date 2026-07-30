@@ -18,6 +18,12 @@ const sitemap = (): MetadataRoute.Sitemap => [
     priority: 0.8,
   })),
   {
+    url: `${site.url}/privacy`,
+    lastModified: new Date("2026-07-30"),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
     url: `${site.url}/blog`,
     // The index dates itself from the newest note instead of from a constant
     // somebody has to remember to bump.

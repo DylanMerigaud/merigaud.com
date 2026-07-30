@@ -7,6 +7,7 @@ import {
   readConsentCookie,
   shouldShowConsentBanner,
 } from "@dylanmerigaud/microsaas-kit/analytics";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { consentBanner } from "@/lib/copy";
@@ -70,7 +71,12 @@ export const ConsentBanner = () => {
       className="bg-paper text-ink border-ink/15 fixed inset-x-0 bottom-0 z-50 border-t px-6 py-4"
     >
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
-        <p className="text-ink/80 text-sm text-pretty">{consentBanner.text}</p>
+        <p className="text-ink/80 text-sm text-pretty">
+          {consentBanner.text}{" "}
+          <Link href="/privacy" className="underline underline-offset-2 hover:no-underline">
+            {consentBanner.privacyLabel}
+          </Link>
+        </p>
         <div className="flex shrink-0 gap-3">
           <button
             type="button"
