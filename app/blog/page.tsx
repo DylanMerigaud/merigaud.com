@@ -8,7 +8,12 @@ import { site } from "@/lib/copy";
 export const metadata: Metadata = {
   title: `${notes.heading} | ${site.name}`,
   description: notes.intro,
-  alternates: { canonical: "/blog" },
+  alternates: {
+    canonical: "/blog",
+    types: {
+      "application/rss+xml": [{ url: "/feed.xml", title: `${notes.heading} | ${site.name}` }],
+    },
+  },
   openGraph: {
     type: "website",
     url: `${site.url}/blog`,

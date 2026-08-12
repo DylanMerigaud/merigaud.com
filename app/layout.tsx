@@ -16,7 +16,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: site.title,
   description: site.description,
-  alternates: { canonical: "/" },
+  // The RSS autodiscovery link, so a reader (or dev.to's importer) handed the
+  // bare domain finds /feed.xml without being told the path. Metadata merging
+  // replaces `alternates` wholesale, so any page that sets its own canonical
+  // has to repeat this; app/blog/page.tsx does.
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": [{ url: "/feed.xml", title: `Notes | ${site.name}` }] },
+  },
   openGraph: {
     type: "profile",
     url: site.url,

@@ -67,6 +67,6 @@ export const config = {
     // Every path except: the PostHog reverse proxy (an event POST must not pay for a middleware
     // invocation), Next's static/image assets, and the metadata files, none of which render a
     // page or need the consent cookie.
-    "/((?!hue|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!hue|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|feed.xml).*)",
   ],
 };
