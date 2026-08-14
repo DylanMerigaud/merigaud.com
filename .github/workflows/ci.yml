@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# This repo is PUBLIC, so unlike wedpalette and microsaas-template (both private, both sharing the
+# account's 2000 free private minutes) a run here costs nothing and cannot be starved by another
+# repo emptying the envelope. The group is kept anyway for the other half of its value: a quick
+# series of pushes cancels its own superseded runs instead of queueing them, so the verdict you
+# read on a branch is always the verdict for its tip.
+#
+# WHAT THAT COSTS, plainly: a cancelled intermediate commit has no verdict of its own. Detection is
+# not lost (the next run measures a tree that contains those changes, so a break stays red), only
+# ATTRIBUTION is: the break surfaces on a later commit. That is bisect granularity traded for
+# faster feedback, on a single-author repo where only the tip of main is deployed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: validate · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # No version pinned on purpose: action-setup v4 reads `packageManager` from package.json
+      # (pnpm@10.24.0 here, same as the two reference repos), so the CLI version follows the repo
+      # instead of drifting from it.
+      - uses: pnpm/action-setup@v4
+
+      # `engines.node` is ">=22" and there is no .nvmrc in any of the three repos, so 22 is pinned
+      # here the same way it is pinned there.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Deliberately the AGGREGATE script and not a hand-written list of steps. The sibling repos
+      # enumerate their gates step by step, which means package.json and the workflow have to be
+      # kept in sync by hand, and they drifted: an audit on 2026-08-14 found microsaas-template
+      # shipping `themes:check` inside its own `validate` while its CI never ran it, so the gate
+      # existed on paper and enforced nothing. Calling `pnpm validate` makes that drift
+      # structurally impossible: whatever is added to the script is gated from the same commit,
+      # with no second file to remember. What it costs is per-gate granularity in the Actions UI,
+      # which the log recovers anyway since pnpm names the failing sub-script.
+      #
+      # Today it expands to `lint && format:check && typecheck && knip` (ESLint, Prettier check,
+      # tsc --noEmit, dead-code check). The chain short-circuits, so the first failing gate is the
+      # one reported; pnpm names the failing sub-script in the log.
+      - name: Validate (lint · format:check · typecheck · knip)
+        run: pnpm validate
+
+      # No `test` step, and none is faked: this repo has zero test files and no runner. A green
+      # gate over nothing is worse than an absent one, because it reads as coverage. The day a real
+      # suite lands, add its script here (and to `validate` if it belongs in the local loop too).
+
+      # No SKIP_ENV_VALIDATION here, unlike the two reference repos, and the difference is real
+      # rather than an oversight. Their env schemas require secrets (an app URL, a database URL),
+      # so `next build` would throw "Invalid environment variables" in CI without the escape hatch.
+      # lib/env.ts on this site declares an EMPTY server schema and exactly one client variable,
+      # NEXT_PUBLIC_POSTHOG_KEY, marked `.optional()`; both consumers (components/posthog-client.tsx
+      # and instrumentation.ts) take it injected and no-op when it is undefined. VERIFIED by
+      # building with the key blanked, which is the CI condition since no .env.local is checked in.
+      # Setting the flag would therefore switch off the only env check this site has and buy
+      # nothing. If a REQUIRED variable is ever added, this step goes red: the fix is a dummy value
+      # under an `env:` key here, not silencing the validation.
+      - name: Build
+        run: pnpm build

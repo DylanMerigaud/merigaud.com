@@ -2,9 +2,9 @@
 # The kit is released from another repo (microsaas-template) and this site consumes it from npm,
 # so nothing here notices a release on its own: the pin sat 4 versions behind for two weeks.
 #
-# Only the npm ecosystem is declared. There are no workflows under .github/workflows yet, and a
-# github-actions block with nothing to update would just be dead config. Add it in the same
-# commit as the first workflow.
+# Two ecosystems are declared. The github-actions block was added alongside the first workflow
+# (.github/workflows/ci.yml), as the note that used to sit here asked: before that workflow
+# existed it would have had nothing to update and would have been dead config.
 version: 2
 
 updates:
@@ -28,5 +28,20 @@ updates:
       # Everything else rides together, otherwise a quiet week still opens a dozen PRs. Groups are
       # matched in order, so this catch-all only ever sees what the group above did not take.
       dependencies:
+        patterns:
+          - "*"
+
+  # The three actions used by ci.yml are pinned to a major (@v4), so this only ever proposes a
+  # major bump. One grouped PR, same cadence as npm, a different commit prefix so the two streams
+  # stay tellable apart in the log.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions:
         patterns:
           - "*"
