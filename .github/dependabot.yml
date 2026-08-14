@@ -1,0 +1,32 @@
+# Keeps this site current on @dylanmerigaud/microsaas-kit without anyone remembering to look.
+# The kit is released from another repo (microsaas-template) and this site consumes it from npm,
+# so nothing here notices a release on its own: the pin sat 4 versions behind for two weeks.
+#
+# Only the npm ecosystem is declared. There are no workflows under .github/workflows yet, and a
+# github-actions block with nothing to update would just be dead config. Add it in the same
+# commit as the first workflow.
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    # `increase` rewrites the range in package.json, not just the lockfile. Without it a 0.2.x
+    # patch would slip in under the existing `^0.2.1` caret with no visible diff to review.
+    versioning-strategy: increase
+    groups:
+      # The kit gets its own group so a release lands as ONE self-contained PR, reviewable on its
+      # own and never stuck behind an unrelated major somewhere else in the tree.
+      microsaas-kit:
+        patterns:
+          - "@dylanmerigaud/microsaas-kit"
+      # Everything else rides together, otherwise a quiet week still opens a dozen PRs. Groups are
+      # matched in order, so this catch-all only ever sees what the group above did not take.
+      dependencies:
+        patterns:
+          - "*"
