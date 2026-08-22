@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { ArticleBody } from "@/components/article-body";
 import { articleSlugs, formatArticleDate, getArticle, notes, readingMinutes } from "@/lib/articles";
 import { site } from "@/lib/copy";
+import { serializeJsonLd } from "@/lib/structured-data";
 
 export const generateStaticParams = () => articleSlugs.map((slug) => ({ slug }));
 
@@ -82,8 +83,8 @@ const ArticlePage = async ({ params }: PageParams) => {
     <main className="sheet relative min-h-svh">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- static JSON-LD from our own data
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- JSON-LD must be an inline script; the payload is JSON.stringify of our own data with `<` escaped (serializeJsonLd), no user input involved.
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <div className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-24">
         <nav aria-label="Breadcrumb" className="eyebrow text-trace">

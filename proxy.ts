@@ -62,11 +62,19 @@ if (`/${PROXY_EXCLUDED_SEGMENT}` !== POSTHOG_PROXY_PATH) {
   );
 }
 
+// The matcher literal must stay a plain inline string: Next 16's build statically parses it (a
+// `const` reference, a template literal, or `String.raw` all trip "Invalid segment configuration
+// export detected"). unicorn wants `String.raw` for the escaped dot below, but that breaks the
+// build, so it's disabled on the line.
+/* eslint-disable unicorn/prefer-string-raw -- Next requires a statically-analyzable string literal here. */
 export const config = {
   matcher: [
     // Every path except: the PostHog reverse proxy (an event POST must not pay for a middleware
-    // invocation), Next's static/image assets, and the metadata files, none of which render a
-    // page or need the consent cookie.
-    "/((?!hue|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|feed.xml).*)",
+    // invocation), Next's static/image assets, the metadata files, and image extensions
+    // (`/og.jpg`, `/icon.svg`, ...), none of which render a page or need the consent cookie:
+    // without this last exclusion every static image paid for a proxy invocation and got the
+    // cookie set on it too.
+    "/((?!hue|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|feed.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
+/* eslint-enable unicorn/prefer-string-raw -- re-enable after the matcher literal. */

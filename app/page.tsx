@@ -8,14 +8,15 @@ import { TestimonialsSection } from "@/components/testimonials-section";
 import { TraceEffects } from "@/components/trace-effects";
 import { WorkSection } from "@/components/work-section";
 import { jsonLd } from "@/lib/copy";
+import { serializeJsonLd } from "@/lib/structured-data";
 
 export default function Page() {
   return (
     <>
       <script
         type="application/ld+json"
-        // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- the canonical way to emit JSON-LD; input is our own static object
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- JSON-LD must be an inline script; the payload is JSON.stringify of our own static object with `<` escaped (serializeJsonLd), no user input involved.
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <HeroGate />
       <main data-sheet className="sheet relative z-10">

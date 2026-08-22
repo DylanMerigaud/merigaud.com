@@ -15,6 +15,9 @@ import { env } from "@/lib/env";
  *
  * `warn` is a no-op: this site has no logger, and a failure to report an error must never become
  * a second error on a request that is already failing.
+ *
+ * `digest` is React's hash for an error it has already processed; PostHog groups on the stack, so
+ * passing it through is what lets a digest seen in a browser console be matched to the issue here.
  */
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
@@ -31,5 +34,9 @@ export const onRequestError: Instrumentation.onRequestError = async (error, requ
     method: request.method,
     routePath: context.routePath,
     routeType: context.routeType,
+    digest:
+      typeof error === "object" && error !== null && "digest" in error
+        ? String(error.digest)
+        : undefined,
   });
 };
