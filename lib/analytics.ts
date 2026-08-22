@@ -1,4 +1,4 @@
-import type { ClickRule } from "@dylanmerigaud/microsaas-kit/analytics";
+import { type ClickRule, createReplayScope } from "@dylanmerigaud/microsaas-kit/analytics";
 
 // Every site that reports analytics shares ONE PostHog project (the free plan
 // allows a single one), so every insight has to filter on this. Named SITE_ID,
@@ -9,22 +9,17 @@ export const SITE_ID = "merigaud";
 /**
  * Which routes session replay may record. Only the long reads qualify: `/blog`
  * and `/work` and their subpaths. The landing page is deliberately NOT
- * recordable (it is a WebGL hero; a replay of it says nothing), and every
- * other route is denied by omission.
+ * recordable (`allowRoot: false`; it is a WebGL hero, a replay of it says
+ * nothing), and every other route is denied by omission.
  *
  * This site renders no forms, holds no auth, and collects no PII, which is
  * what makes replay defensible here at all.
  *
- * `pathname` normally arrives from `usePathname()`, which already carries no
- * query or hash, but the query/hash is stripped defensively anyway since
- * nothing about this function's signature guarantees that.
+ * The matcher body (strip query/hash, then root-or-prefix match) moved to
+ * @dylanmerigaud/microsaas-kit/analytics (kit 0.4.0, `createReplayScope`);
+ * only the prefix list and the `allowRoot: false` override stay local.
  */
-export const isReplayAllowedPath = (pathname: string): boolean => {
-  const path = pathname.split(/[?#]/, 1)[0] ?? pathname;
-  return (
-    path === "/blog" || path.startsWith("/blog/") || path === "/work" || path.startsWith("/work/")
-  );
-};
+export const isReplayAllowedPath = createReplayScope(["/blog", "/work"], { allowRoot: false });
 
 /**
  * Ordered most to least specific; the first match wins (see
