@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@dylanmerigaud/microsaas-kit':
-        specifier: ^0.4.0
-        version: 0.4.0(clsx@2.1.1)(next@16.2.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-js@1.408.1)(posthog-node@5.46.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwind-merge@3.6.0)(zod@4.4.3)
+        specifier: ^0.5.2
+        version: 0.5.2(clsx@2.1.1)(next@16.2.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-js@1.408.1)(posthog-node@5.46.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwind-merge@3.6.0)(zod@4.4.3)
       '@react-three/fiber':
         specifier: ^9.6.1
         version: 9.6.1(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.185.1)
@@ -121,8 +121,8 @@ packages:
       prettier:
         optional: true
 
-  '@dylanmerigaud/microsaas-kit@0.4.0':
-    resolution: {integrity: sha512-ktoRrtfbHwIzF10E7SMoGLfaD/NkcMHi9cvU87NjKGYOqvoYalGbgYwbcUENAaldcy7h1I9ovdD9ObgY1lbY4w==}
+  '@dylanmerigaud/microsaas-kit@0.5.2':
+    resolution: {integrity: sha512-eBghn59ILybXaod3S6zIFPMPtgC5xW8haDwMjzKKYoyniPXNml6M97i7yQ3waZHhvyB4iFq9V/QIC9I5sa7YqQ==}
     engines: {node: '>=22'}
     peerDependencies:
       '@neondatabase/serverless': ^1
@@ -2949,7 +2949,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@dylanmerigaud/microsaas-kit@0.4.0(clsx@2.1.1)(next@16.2.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-js@1.408.1)(posthog-node@5.46.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwind-merge@3.6.0)(zod@4.4.3)':
+  '@dylanmerigaud/microsaas-kit@0.5.2(clsx@2.1.1)(next@16.2.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(posthog-js@1.408.1)(posthog-node@5.46.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwind-merge@3.6.0)(zod@4.4.3)':
     dependencies:
       clsx: 2.1.1
       react: 19.2.4
