@@ -211,7 +211,7 @@ export const experience = {
     },
     {
       label: "Neige · founder",
-      text: "AI content-generation pipeline. Empty repo to production, solo.",
+      text: "AI software company. Ships and runs its own products, empty repo to revenue, solo.",
     },
     {
       label: "Runtime · 9 years",
