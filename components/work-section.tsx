@@ -68,7 +68,7 @@ export const WorkSection = () => (
                       <li key={link.href}>
                         <a
                           href={link.href}
-                          className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+                          className="quiet-link link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
                         >
                           {link.label}
                         </a>
@@ -83,8 +83,14 @@ export const WorkSection = () => (
                   ))}
                 </ul>
               </div>
+              {/* Sticky for the same reason app/work/[slug] already is: the body copy of an
+                  entry runs several hundred pixels past the bottom of its figure, so the
+                  right column sat empty for most of every article. The evidence now tracks
+                  the paragraph describing it instead of scrolling away from it. */}
               <div className="mt-8 md:col-span-7 md:mt-4">
-                <WorkFigure figure={item.figure} />
+                <div className="md:sticky md:top-24">
+                  <WorkFigure figure={item.figure} />
+                </div>
               </div>
             </div>
           </article>
@@ -97,6 +103,13 @@ export const WorkSection = () => (
         <p className="eyebrow text-trace">{workMore.label}</p>
         <p className="text-ink/75 mt-2 max-w-2xl leading-relaxed">
           {workMore.text}{" "}
+          {/* The ONE link family on this site that deliberately does NOT get `quiet-link`.
+              These sit inside a running sentence, and WCAG 2.5.8 exempts inline links by its
+              own Inline clause; forcing them to inline-flex with a 24px box would lift them
+              out of the line box and wreck the leading of the paragraph around them. Same
+              call, same reasoning, as normfin's components/cta-classes.ts, which separates
+              INLINE_LINK from QUIET_LINK for exactly this. The affordance here is the
+              underline plus the colour, not a hit box. */}
           {workMore.links.map((link, index) => (
             <span key={link.href}>
               <a

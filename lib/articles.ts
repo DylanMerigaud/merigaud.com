@@ -643,13 +643,16 @@ export const formatArticleDate = (iso: string): string =>
   });
 
 // `stage` and `index` place the homepage Notes section on the trace, between
-// policy (05) and scope (07). Keep them in step with the stages in lib/copy.ts.
+// policy (02) and scope (04). Keep them in step with the stages in lib/copy.ts,
+// which owns the numbering rule: PAGE SECTIONS take 01..05 and the three
+// PROJECTS take A, B, C, because one shared 01..08 run made a project and a
+// section look like the same kind of thing.
 export const notes = {
   stage: "record",
-  index: "06",
+  index: "03",
   eyebrow: "the record",
   // The marker label on the homepage. Separate from `eyebrow` because the marker
-  // already prints the stage: "06 · record / the record" stutters, and the
+  // already prints the stage: "03 · record / the record" stutters, and the
   // breadcrumb on /blog wants the noun, not this claim.
   sectionLabel: "published here first",
   heading: "Notes",

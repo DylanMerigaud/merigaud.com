@@ -81,7 +81,10 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
           follows the target rather than naming a section it no longer goes to. */}
       <a
         href="#main"
-        className="bg-paper text-ink sr-only z-50 rounded-md px-4 py-2 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
+        // Centred rather than pinned to the left corner: at top-4 left-4 it landed on top of
+        // the wordmark, so the first thing a keyboard reader saw was two pieces of text in the
+        // same 40px square. Nothing else on any route occupies the top centre.
+        className="bg-paper text-ink sr-only z-50 rounded-md px-4 py-2 focus:not-sr-only focus:fixed focus:top-4 focus:left-1/2 focus:-translate-x-1/2"
       >
         Skip to content
       </a>

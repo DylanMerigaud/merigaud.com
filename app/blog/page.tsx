@@ -44,7 +44,11 @@ export default function NotesIndexPage() {
         {articles.length === 0 ? (
           <p className="text-ink/70 mt-16">{notes.empty}</p>
         ) : (
-          <ul className="border-ink/15 mt-14 border-t">
+          // ONE measure for the whole list, rules included. It used to stack four different
+          // ones in a single row (title 24ch, standfirst 62ch, tags full width, and the rule
+          // running the full 1075px container), so every row broke at a different place and
+          // the titles took widows off a measure nothing else shared.
+          <ul className="border-ink/15 mt-14 max-w-[46rem] border-t">
             {articles.map((article) => (
               <li key={article.slug} className="border-ink/15 border-b">
                 {/* The whole row is the target: a list of long titles is a bad place
@@ -56,10 +60,10 @@ export default function NotesIndexPage() {
                     </time>
                     <span>{readingMinutes(article)} min read</span>
                   </p>
-                  <h2 className="group-hover:text-stamp mt-3 max-w-[24ch] text-2xl font-semibold tracking-tight transition-colors md:text-3xl">
+                  <h2 className="group-hover:text-stamp mt-3 text-2xl font-semibold tracking-tight text-balance transition-colors md:text-3xl">
                     {article.title}
                   </h2>
-                  <p className="text-ink/75 mt-3 max-w-[62ch] leading-relaxed">{article.lead}</p>
+                  <p className="text-ink/75 mt-3 leading-relaxed">{article.lead}</p>
                   <ul aria-label="Tags" className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5">
                     {article.tags.map((tag) => (
                       <li key={tag} className="eyebrow text-trace">
@@ -85,7 +89,7 @@ export default function NotesIndexPage() {
           </a>
           <Link
             href="/#work"
-            className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+            className="quiet-link link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
           >
             Back to the trace
           </Link>
