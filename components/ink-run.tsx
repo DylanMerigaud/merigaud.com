@@ -158,6 +158,17 @@ export const InkRun = ({ isPlaying, onTogglePlayback }: InkRunProps) => {
           width={672}
           height={900}
           priority
+          /* The box is `width: min(30vw, 25rem)` (see .run-invoice), so it caps at 400px and
+             is 30vw below a 1334px viewport. With no `sizes` at all Next fell back to the
+             declared 672px width and served a 672-wide candidate for a 380px box on 1x while
+             a 2x screen, which wants 760, got nothing better.
+
+             CEILING, stated rather than papered over: the source itself is 672x900 and no
+             larger original exists anywhere in this repo (checked public/ and the two
+             scripts/ generators). So 2x on a 400px box is unreachable and the honest fix is
+             to stop over-fetching on 1x, which this does. A sharp retina invoice needs a
+             re-export at ~1520px from whatever produced the flat, which is not in the tree. */
+          sizes="(min-width: 1334px) 400px, 30vw"
           className="block h-auto w-full"
         />
         <div className="run-scan" />

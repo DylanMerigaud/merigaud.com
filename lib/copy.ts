@@ -79,7 +79,7 @@ export const workSection = {
 export const work: WorkItem[] = [
   {
     stage: "match",
-    index: "01",
+    index: "A",
     slug: "ledgerloop",
     title: "ledgerloop",
     lead: "An agent reads a company's HRIS and derives the whole approval workflow. Then invoices route through it.",
@@ -95,16 +95,16 @@ export const work: WorkItem[] = [
     tags: ["Mastra", "Next.js", "TypeScript strict", "Zod", "Drizzle", "QuickBooks", "BambooHR"],
     figure: {
       kind: "image",
-      src: "/work/ledgerloop.png",
-      width: 2000,
-      height: 1023,
-      alt: "ledgerloop live demo: an invoice run traversing a derived approval workflow, with the execution trace panel open",
+      src: "/work/ledgerloop-dag.png",
+      width: 810,
+      height: 280,
+      alt: "The approval workflow ledgerloop derived from a client HRIS: manager review by Riley Carter for anything over 1,000 dollars, director review by Cameron Diaz over 10,000, department head review by Sam Patel on product only, then the bill posts to NetSuite",
       caption: "fig. 01 · derived approval DAG · ledgerloop",
     },
   },
   {
     stage: "route",
-    index: "02",
+    index: "B",
     slug: "approvals-ui",
     title: "approvals-ui",
     lead: "The approval workflow screen, as shadcn components.",
@@ -130,7 +130,7 @@ export const work: WorkItem[] = [
   },
   {
     stage: "audit",
-    index: "03",
+    index: "C",
     slug: "fintech-roast",
     title: "fintech-roast",
     lead: "An agent that roasts the code that touches money.",
@@ -201,7 +201,7 @@ export const testimonials = {
 
 export const experience = {
   stage: "trace",
-  index: "04",
+  index: "01",
   eyebrow: "nine years of runs",
   heading: "Experience",
   rows: [
@@ -222,7 +222,7 @@ export const experience = {
 
 export const approach = {
   stage: "policy",
-  index: "05",
+  index: "02",
   eyebrow: "no llm on amounts",
   heading: "How I build AI for fintech",
   pullBefore: "An LLM",
@@ -243,7 +243,7 @@ export const approach = {
 
 export const engagement = {
   stage: "scope",
-  index: "07",
+  index: "04",
   eyebrow: "how we start",
   heading: "Work with me",
   rows: [
@@ -265,7 +265,7 @@ export const engagement = {
 
 export const contact = {
   stage: "approve",
-  index: "08",
+  index: "05",
   eyebrow: "let's talk",
   heading: "Building AI into a fintech product? Let's talk.",
   ctaEmailLabel: "dylan@merigaud.com",

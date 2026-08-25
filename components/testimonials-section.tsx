@@ -30,6 +30,10 @@ export const TestimonialsSection = () => (
                   alt={item.name}
                   width={40}
                   height={40}
+                  /* A fixed 40px box at every breakpoint, so the declaration is a constant.
+                     Without it Next served the 40px candidate to 2x screens too, where the
+                     avatar wants 80. The sources are 200x200, comfortably above that. */
+                  sizes="40px"
                   className="size-10 rounded-full object-cover"
                 />
                 <span className="block">

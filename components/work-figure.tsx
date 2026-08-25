@@ -34,7 +34,12 @@ export const WorkFigure = ({ figure }: { figure: WorkItem["figure"] }) => {
             width={figure.width}
             height={figure.height}
             alt={figure.alt}
-            sizes="(min-width: 768px) 44rem, 100vw"
+            /* The real boxes, measured rather than guessed, because the old 44rem was a
+               number no layout on this site produces. The figure is 7 of 12 columns inside a
+               max-w-6xl container with px-10, pl-10 and gap-10: 585px once the container caps
+               at 1152px, and about 55vw while it is still fluid. On /work/<slug> it is 5 of 12
+               and narrower, so the larger of the two is declared and the browser downscales. */
+            sizes="(min-width: 1152px) 585px, (min-width: 768px) 55vw, 100vw"
             className="figure-media block w-full"
           />
         ) : (
