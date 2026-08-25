@@ -26,12 +26,12 @@ export const metadata: Metadata = {
 
 export default function NotesIndexPage() {
   return (
-    <main className="sheet relative min-h-svh">
+    <main id="main" className="sheet relative min-h-svh">
       <div className="mx-auto max-w-6xl px-6 py-16 md:px-10 md:py-24">
         <nav aria-label="Breadcrumb" className="eyebrow text-trace">
           <Link
             href="/"
-            className="hover:text-ink underline-offset-4 transition-colors hover:underline"
+            className="quiet-link hover:text-ink underline-offset-4 transition-colors hover:underline"
           >
             {site.name}
           </Link>{" "}

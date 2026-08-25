@@ -64,12 +64,15 @@ export const ContactSection = () => (
               {link.href.startsWith("/") ? (
                 <Link
                   href={link.href}
-                  className="eyebrow text-trace hover:text-ink transition-colors"
+                  className="quiet-link eyebrow text-trace hover:text-ink transition-colors"
                 >
                   {link.label}
                 </Link>
               ) : (
-                <a href={link.href} className="eyebrow text-trace hover:text-ink transition-colors">
+                <a
+                  href={link.href}
+                  className="quiet-link eyebrow text-trace hover:text-ink transition-colors"
+                >
                   {link.label}
                 </a>
               )}

@@ -73,11 +73,17 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
         // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- pre-paint flash guard; static, self-authored (lib/hero-mode)
         dangerouslySetInnerHTML={{ __html: PRE_INK_SCRIPT }}
       />
+      {/* The skip link points at the page's own <main>, not at a section. It used to target
+          #work, an id that exists on the home page alone (components/work-section.tsx), so on
+          /blog, /privacy and every /work/<slug> the first thing a keyboard reader reached was a
+          link to nowhere: the fragment matched no element and the browser did not move. #main is
+          on the <main> of every route, which is the destination a skip link is for. The label
+          follows the target rather than naming a section it no longer goes to. */}
       <a
-        href="#work"
+        href="#main"
         className="bg-paper text-ink sr-only z-50 rounded-md px-4 py-2 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
       >
-        Skip to work
+        Skip to content
       </a>
       {children}
       <Analytics />

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 // a human opening the route to look at it.
 export default function OgPage() {
   return (
-    <main className="bg-ink-deep flex min-h-svh items-center justify-center">
+    <main id="main" className="bg-ink-deep flex min-h-svh items-center justify-center">
       <OgPoster />
     </main>
   );

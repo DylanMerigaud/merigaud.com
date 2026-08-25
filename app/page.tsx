@@ -19,7 +19,7 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <HeroGate />
-      <main data-sheet className="sheet relative z-10">
+      <main id="main" data-sheet className="sheet relative z-10">
         {/* The execution trace: drawn by scroll, pierced through every section. */}
         <div aria-hidden="true" data-spine className="spine hidden md:block">
           <div data-spine-fill className="spine-fill" />

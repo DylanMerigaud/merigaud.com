@@ -80,7 +80,7 @@ const ArticlePage = async ({ params }: PageParams) => {
   };
 
   return (
-    <main className="sheet relative min-h-svh">
+    <main id="main" className="sheet relative min-h-svh">
       <script
         type="application/ld+json"
         // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- JSON-LD must be an inline script; the payload is JSON.stringify of our own data with `<` escaped (serializeJsonLd), no user input involved.
@@ -90,7 +90,7 @@ const ArticlePage = async ({ params }: PageParams) => {
         <nav aria-label="Breadcrumb" className="eyebrow text-trace">
           <Link
             href="/blog"
-            className="hover:text-ink underline-offset-4 transition-colors hover:underline"
+            className="quiet-link hover:text-ink underline-offset-4 transition-colors hover:underline"
           >
             {notes.eyebrow}
           </Link>{" "}

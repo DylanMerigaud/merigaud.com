@@ -1,4 +1,12 @@
 @import "tailwindcss";
+/* The base element rules the kit ships: pointer cursor on `button`, `[role="button"]` and
+   `a[href]`. Tailwind v4's preflight stopped setting it and nothing put it back, so every button
+   on this site showed the default arrow and read as text you happen to be able to press.
+   IMPORTED rather than copied, unlike microsaas-template which inlines the same block: that repo
+   carries the kit's source, this one consumes the published package, so the import is the version
+   of the rule that cannot drift. The file declares no tokens and no colours, which is why pulling
+   it in cannot reach this site's palette. */
+@import "@dylanmerigaud/microsaas-kit/base.css";
 
 @theme {
   --color-ink: #131316;
@@ -13,6 +21,53 @@
 
   --font-sans: var(--font-mona), "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  /* Law 11 of docs/DESIGN-FINTECH-2026-08-24.md: one ease-out with no overshoot. These reuse
+     Tailwind's own easing keys, so the `ease-out` and `ease-in-out` utilities are REPLACED
+     wherever they are written rather than sitting beside the defaults as an opt-in.
+
+     A PLAIN `@theme`, never `@theme inline`, and the difference is the whole point. Inline emits
+     a self-referential `--ease-out: var(--ease-out)` and leaves the utility resolving to nothing,
+     which is exactly how the curve shipped declared-and-dead on two other sites. A plain block
+     registers real Tailwind easing tokens: the utility carries the curve AND `:root` gets the
+     custom property, so `var(--ease-out)` works too.
+
+     Measured before adding them: no file on this site writes an `ease-*` utility (every
+     transition here is hand-written CSS with its own curve), so this moves zero frames today. It
+     is the token becoming available, not a retiming. */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* The structural design tokens. Every one of them is palette-neutral: each either ALIASES a
+   colour this site already ships or carries no colour at all. Nothing here repaints anything.
+   -- color-scheme  `light`, which is what a browser already assumes when no page declares it, so
+                    this changes no pixel today. Declared anyway because undeclared is not the
+                    same as decided: it pins the native widgets (scrollbars, the caret, the
+                    context menus) to the paper sheet the site actually reads on, instead of
+                    leaving them to whatever a future UA default does with a dark-OS reader.
+   -- ring          the focus indicator's colour, an alias of the stamp green this site already
+                    focused with. It exists so the a11y floor below and lib/design-contrast.test.ts
+                    name ONE token, and so the dark sections flip it through the cascade rather
+                    than through a second selector.
+   -- hairline      DECORATIVE rules only (dividers, dot grids), ink at the 8 percent alpha the
+                    spec fixes. The component borders already on this page (figure cards, the
+                    footer rule, the consent banner) keep their own values on purpose: this is a
+                    token made available to what comes next, not a repaint of what is here.
+   -- duration-*    the 100/200ms pair the motion rules cite, held as plain custom properties
+                    rather than `@theme` keys so they do not mint `duration-quick` utilities
+                    nothing writes. */
+:root {
+  color-scheme: light;
+  --ring: var(--color-stamp);
+  --hairline: rgb(19 19 22 / 0.08);
+  --duration-quick: 100ms;
+  --duration-regular: 200ms;
+}
+
+.on-dark {
+  --ring: var(--color-stamp-dark);
+  --hairline: rgb(247 247 244 / 0.09);
 }
 
 html {
@@ -41,14 +96,70 @@ body {
   text-transform: uppercase;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-stamp);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
+/* ---------- accessibility floor ---------- */
 
-.on-dark :focus-visible {
-  outline-color: var(--color-stamp-dark);
+/* In `@layer base` so an element that needs to override one of these can do it with a plain
+   utility class. The three unlayered `:focus-visible` rules further down (.code-block and its
+   kin) still win over this block whatever their specificity, which is how they were already
+   written and what they are for. */
+@layer base {
+  /* WCAG 2.4.7 and 2.4.13, RGAA 10.7: a SOLID 2px outline, never a box-shadow ring. A ring is
+     painted inside the element's own box, so any `overflow-hidden` ancestor clips it away, and
+     this page is made of them (the sheet, the figure cards, the ink hero, the code panels). An
+     outline is painted outside the box and nothing can clip it. --ring carries the stamp green,
+     measured by lib/design-contrast.test.ts at 6.08:1 on paper and 8.89:1 on ink-deep, both well
+     over the 3:1 a focus indicator owes.
+
+     Two changes from the rule this replaces, and the second is a bug fix. The offset drops 3px to
+     2px, to match the ring the rest of the design system draws. And `border-radius: 2px` is GONE:
+     it set the radius of the focused ELEMENT rather than of its outline, and being unlayered it
+     beat every Tailwind `rounded-*` utility on the page, so the skip link squared itself off from
+     6px to 2px at the exact moment it became visible. An outline already follows the element's
+     own corners; the declaration only ever fought them. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* WCAG 2.3.3, taken as a floor rather than an AAA nicety. This file already switches off each
+     animation it owns, one block at a time, and every one of those blocks still stands; this is
+     the catch-all underneath them, so an animation added later is covered before anyone
+     remembers to write its opt-out. Reduced motion means OFF, not slower. The 0.01ms rather than
+     0 keeps transitionend/animationend firing, so any code waiting on one is not left hanging. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Law 10 of the spec: tabular figures on numeric DISPLAYS, never globally. On this site the
+     numbers all speak in one voice, `.eyebrow`: the section index (01 · read / the work), the
+     article dates, the reading minutes, the privacy date. Naming that class is the targeted rule
+     the law asks for, and it is measured to move nothing today, since .eyebrow is already set in
+     Geist Mono whose figures are fixed-width. It is here so a proportional face on the eyebrow
+     later cannot silently make a column of dates ragged. */
+  .eyebrow {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* WCAG 2.5.8: no interactive target below 24x24 CSS px. Two families on this site sit under it,
+     both because they are set in the 13px mono eyebrow: the footer links and the breadcrumb link
+     at the top of every sub-page. Their text box is about 16px tall, and the footer packs its
+     rows 8px apart, which fails the spacing exception as well, so the size has to be met head on.
+
+     A class rather than a selector over `.eyebrow a`, because that would also catch inline links
+     inside a sentence, which the SC exempts by its own Inline clause and which would look wrong
+     with a 24px box around them. */
+  .quiet-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
 }
 
 /* ---------- hero ---------- */
