@@ -448,6 +448,15 @@ html.pre-ink:not([data-ink3d]) [data-hero-fade] .hero-rise {
   text-wrap: balance;
 }
 
+/* THE ONE RED MARK ON A GREEN SITE, AND IT STAYS RED. Written down because it reads as a
+   stray accent to anyone auditing colour counts, and the next reviewer will want to "fix" it.
+   The sentence is "An LLM NEVER decides a payment amount", the hardest safety claim the site
+   makes, and this site has a two-colour vocabulary it uses consistently: --color-stamp green
+   means approved (the hero receipt's APPROVED, the trace, every live-demo button) and
+   --color-flag red means refused or flagged (app/error.tsx reads "error, flagged for review").
+   Underlining "never" in the APPROVAL green would paint the site's one refusal in the colour
+   it uses for consent, which says the opposite of the sentence. Contrast is measured, not
+   assumed: 7.64:1 on paper, in lib/design-contrast.test.ts. */
 .pull-never {
   text-decoration: underline;
   text-decoration-color: var(--color-flag);

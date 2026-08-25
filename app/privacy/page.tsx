@@ -72,7 +72,7 @@ export default function PrivacyPage() {
           </a>
           <Link
             href="/"
-            className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+            className="quiet-link link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
           >
             {privacy.backCta}
           </Link>

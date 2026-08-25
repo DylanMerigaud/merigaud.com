@@ -85,7 +85,7 @@ const CaseStudyPage = async ({ params }: PageParams) => {
               ) : (
                 <a
                   href={link.href}
-                  className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+                  className="quiet-link link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
                 >
                   {link.label}
                 </a>
@@ -148,7 +148,7 @@ const CaseStudyPage = async ({ params }: PageParams) => {
           </a>
           <Link
             href="/#work"
-            className="link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
+            className="quiet-link link-arrow text-stamp decoration-stamp/40 hover:decoration-stamp font-medium underline underline-offset-4"
           >
             Back to the trace
           </Link>
