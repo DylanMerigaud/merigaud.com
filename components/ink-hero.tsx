@@ -81,7 +81,24 @@ export const InkHero = () => {
 
   return (
     <header className="on-dark bg-ink-deep sticky top-0 z-0 h-svh">
-      <div aria-hidden="true" className="fixed inset-0 h-svh w-screen">
+      {/* The wire is masked out of the left of the viewport, where the headline lives. At
+          1440 the graph ran straight through the letters of "money." and "mess.", which read
+          as a stray scribble over the one line the page exists to say rather than as a
+          circuit behind it. The gradient starts fading at 62 percent and is fully opaque by
+          72, which clears the longest h1 line and still keeps three of the five nodes.
+
+          Safe to mask this container and nothing else: it holds ONLY the Canvas and the
+          grain. The invoice, the receipt and the headline are siblings in InkRun below, and
+          the trace spine further down the page is CSS (.spine-fill in globals.css), not this
+          canvas, so nothing past the fold reads through here. */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 h-svh w-screen"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0 62%, black 72%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0 62%, black 72%)",
+        }}
+      >
         <Canvas
           frameloop={frameloop}
           camera={{ fov: 40, position: [0, -0.1, 7.7] }}

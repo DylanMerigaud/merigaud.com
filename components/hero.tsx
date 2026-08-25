@@ -104,6 +104,15 @@ export const Hero = () => {
         aria-hidden="true"
         className="from-ink-deep/85 via-ink-deep/50 to-ink-deep/85 absolute inset-0 bg-gradient-to-b"
       />
+      {/* At phone widths the copy sits exactly where that scrim is weakest. The hero centres
+          its content, so at 375 the headline and the paragraph land on the 50 percent middle
+          band and the poster texture reads straight through the words. This second veil is
+          centred on that band, fades to nothing at both ends so the frame keeps its depth,
+          and is dropped at md where the wider hero puts the text clear of the busy area. */}
+      <div
+        aria-hidden="true"
+        className="from-ink-deep/0 via-ink-deep/80 to-ink-deep/0 absolute inset-0 bg-gradient-to-b md:hidden"
+      />
       <div aria-hidden="true" data-hero-dim className="bg-ink-deep absolute inset-0 opacity-0" />
 
       <HeroContent
