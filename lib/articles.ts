@@ -8,8 +8,9 @@
 // syndication. If prose ever outgrows this, the escape hatch is one component
 // (components/article-body.tsx); no article data has to move.
 //
-// PROVENANCE, and it is the whole reason every note carries a July date. None of
-// this was written for the blog, because the blog did not exist yet:
+// PROVENANCE of the seven July notes, and it is the whole reason they carry a
+// July date. None of them was written for the blog, because the blog did not
+// exist yet:
 //   - 3 were published on Medium (the rulebook on dev.to first, Medium second),
 //     with NO canonical link, so those platforms currently own the search ranking
 //     for Dylan's own writing. Fixing that is why the pages had to exist here
@@ -56,6 +57,310 @@ export type Article = {
 // goes on top. Not sorted at runtime on purpose, `toSorted` is ES2023 and the
 // shared tsconfig pins lib to ES2022; one array sort is not worth diverging for.
 export const articles: readonly Article[] = [
+  {
+    slug: "recall-1000-blind-to-dust",
+    title: "I Published a Perfect Recall. Then I Measured Dust.",
+    metaTitle: "I Published a Perfect Recall. Then I Measured Dust. | Dylan Mérigaud",
+    metaDescription:
+      "Nine detector thresholds read off precision/recall curves and validated on a held-out seed, and the one measurement that turns 1.000 into 0.000.",
+    lead: "A detector that scores perfectly on your benchmark is telling you something about your benchmark.",
+    publishedAt: "2026-08-27",
+    tags: ["evals", "measurement", "document-verification", "python"],
+    blocks: [
+      {
+        kind: "p",
+        text: "`dossier-preflight` answers one question: is this dossier going to be rejected at the counter. Not extraction, not document generation. It checks a set of filed documents against an external reference, and it measures what is actually PRINTED on the sheet, because an AcroForm field can carry a value that never prints while the clerk reads paper. The code and every number below are public at [github.com/DylanMerigaud/dossier-preflight](https://github.com/DylanMerigaud/dossier-preflight).",
+      },
+      {
+        kind: "h2",
+        id: "nine-thresholds",
+        text: "Nine thresholds, none of them picked by hand",
+      },
+      {
+        kind: "p",
+        text: "Nine checks: a required field left empty, a box left unticked, a missing signature, an expired piece, two pieces whose data disagree, a forbidden value reappearing, a scan too coarse to read, a truncated page, an upside-down page. Each one emits a continuous score, and each threshold is read off a precision/recall curve instead of chosen by eye (commit `db72954`).",
+      },
+      {
+        kind: "p",
+        text: "The rig behind that: 384 cells (6 rotation angles x 4 resolutions x 4 JPEG qualities x 4 noise levels) x 3 seeds = 1152 dossiers, 13,824 image readings, 121 minutes on 13 local workers. Inside the nominal domain of 150 dpi and up, eight of the nine checks hold a recall of 1.000 at zero false positives per target. The ninth, forbidden values, holds 0.997 at 0.00058 per target.",
+      },
+      {
+        kind: "p",
+        text: "The rate a user actually feels is neither of those. It is the chance that an entirely clean dossier still sets something off: 4 dossiers out of 864, 0.46%, all four from the forbidden-value check. A gate that cries for nothing gets skimmed, and the rule sitting next to it gets skimmed with it.",
+      },
+      {
+        kind: "h2",
+        id: "held-out-seed",
+        text: "The seed I did not look at",
+      },
+      {
+        kind: "p",
+        text: "Choosing an operating point on a set of draws and then reporting its score on those same draws inflates it by an amount nobody can recover afterwards. The protocol against that is in LIMITS.md at [github.com/DylanMerigaud/dossier-preflight](https://github.com/DylanMerigaud/dossier-preflight), in the words it was written in:",
+      },
+      {
+        kind: "aside",
+        text: "The threshold is chosen on seeds 11 and 23, and the published figure is the one from seed 37, never looked at beforehand. Choosing a threshold and reporting its recall on the same draws always overestimates it.",
+      },
+      {
+        kind: "p",
+        text: "That splits every table in that file in three rows: calibration on 576 positives, validation on 288, overall on 864. The required-field check reads 1.000 with a 95% interval of [0.987, 1.000] on the held-out seed alone. It is a real holdout, and it is the cheapest discipline in the whole project. It also did nothing at all for the failure that comes next.",
+      },
+      {
+        kind: "h2",
+        id: "ink-never-added",
+        text: "The grid moved ink. It never added any.",
+      },
+      {
+        kind: "p",
+        text: 'Four factors vary in that grid: angle, resolution, JPEG quality, noise. All four move, blur or dirty the ink already on the page. Not one of them puts new ink where there was none. And the sensor that won the duel for "is this required field empty" is an ink sensor: it does not read anything, it measures how much darker a zone got compared to the blank form (commit `3a4e682`).',
+      },
+      {
+        kind: "code",
+        lang: "text",
+        caption: "The duel for the empty-required-field check",
+        code: `sensor                                         recall  false positives per target
+---------------------------------------------  ------  --------------------------
+added ink, threshold 128 (retained)            1.000   0.0000
+full-page plus per-zone OCR, min confidence 0  1.000   0.0003
+OCR alone, min confidence 10 and up            0.000   0.0000`,
+      },
+      {
+        kind: "p",
+        text: "It won on ground built to favour it. For a while the limits file said so as a hypothesis, which is the polite way of shelving a problem.",
+      },
+      {
+        kind: "h2",
+        id: "the-cliff",
+        text: "A cliff, not a slope",
+      },
+      {
+        kind: "p",
+        text: "A separate probe put a number on it, 528 readings, on 2026-08-21. Three shapes of foreign ink laid on the clean render before degradation, so each one goes through the same rotation, blur, noise and compression as the page: a speck, a fold shadow, a pen stroke spilling over from the neighbouring field. Target: the exact field that the empty-required-field variant leaves blank. The control with no parasite returns zero false negatives and zero false positives on all four sensors, so the bench itself is sound (commit `c96c5ac`).",
+      },
+      {
+        kind: "code",
+        lang: "text",
+        caption:
+          "False negatives, an empty field declared filled, once at least 0.5% foreign ink is in the zone, n=151",
+        code: `sensor                                   false negatives  95% CI
+---------------------------------------  ---------------  --------------
+ink, threshold 128 (retained)            1.000            [0.975, 1.000]
+union of the word sensors, confidence 0  0.272            [0.207, 0.347]
+full-page OCR                            0.185            [0.132, 0.255]
+per-zone OCR                             0.106            [0.066, 0.165]`,
+      },
+      {
+        kind: "p",
+        text: "Those are false negatives, the expensive side: the counter rejects the dossier and the tool said nothing. The shape is the part I did not expect. The published threshold is 0.345% added ink. The sensor fires 97 times out of 97 up to 0.323%, and 0 times out of 167 from 0.380% on. The two populations do not overlap by one single reading. That is a step, and it sits on the exact number I had published.",
+      },
+      {
+        kind: "p",
+        text: "For that field, 15,770 canonical pixels, 0.35% is a 9 x 8 px speck at 200 dpi. That is a piece of dust on the scanner glass. A pen stroke barely spilling out of the neighbouring field already adds 0.61%.",
+      },
+      {
+        kind: "h2",
+        id: "why-it-stayed",
+        text: "Why the threshold did not move anyway",
+      },
+      {
+        kind: "p",
+        text: "A probe on one field, two cells and three ink shapes shows that a choice was settled on biased ground. It is not enough to move a threshold. So the grid was replayed with parasitic ink as a fifth factor, laid on the very field a variant empties, over 27 cells and 3 seeds (commit `aa7e0ed`).",
+      },
+      {
+        kind: "code",
+        lang: "text",
+        caption: "Recall by parasitic ink level on the damaged field, 27 cells x 3 seeds",
+        code: `sensor                         clean  at 0.2% ink  at 1%  at 4%  false positives at 4%
+-----------------------------  -----  -----------  -----  -----  ---------------------
+ink, threshold 128 (retained)  1.000  0.333        0.000  0.000  0.000
+union, confidence 0            1.000  0.778        0.679  0.519  0.296
+full-page OCR                  1.000  1.000        1.000  0.778  0.556
+per-zone OCR                   1.000  0.778        0.679  0.630  0.481`,
+      },
+      {
+        kind: "p",
+        text: "Past 1% of foreign ink on the damaged field, the retained sensor is completely blind. In exchange it never cries wolf, at any level, while the word sensors raise false alarms on 30 to 56% of clean pages at 4%. One of those degrades a gate. The other destroys it.",
+      },
+      {
+        kind: "p",
+        text: "The sensor stayed, and the reason is written down rather than assumed:",
+      },
+      {
+        kind: "aside",
+        text: "The operating point is chosen on clean pages, deliberately: the four parasite levels exist in equal proportion for statistical power, and choosing a threshold on the pooled set would silently assume that three pages in four carry foreign ink.",
+      },
+      {
+        kind: "p",
+        text: "What changed is what ships beside the number. `thresholds.json` now carries `recall_with_ink_on_the_damaged_field` in the same object as `recall`, so the required-field entry reads 1.0 and 0.0 next to each other and nobody can quote the first without meeting the second. If your scans come off a dirty glass, full-page OCR is the sensor to prefer, and you pay for it in false alarms. That trade is yours. The measurement is there so you can make it.",
+      },
+      {
+        kind: "h2",
+        id: "three-questions",
+        text: "Three questions for any benchmark that returns 1.000",
+      },
+      {
+        kind: "p",
+        text: "Read against my own, on 2026-08-27, and every one of them cost me something before it became a question.",
+      },
+      {
+        kind: "p",
+        text: "What does the generator never produce? Mine never added ink, and the sensor it crowned was an ink sensor. The blind spot of the benchmark and the blind spot of the winner were the same shape, so the grid could not see it by construction, no matter how many cells it ran.",
+      },
+      {
+        kind: "p",
+        text: "Was the threshold read on the same draws it is reported on? If yes, the number is optimistic by an amount nobody can recover after the fact. A held-out seed costs one extra run.",
+      },
+      {
+        kind: "p",
+        text: "Does the failure mode ship in the same file as the score? A limits document nobody opens is not a disclosure. The number and the thing that kills it belong in one object.",
+      },
+      {
+        kind: "p",
+        text: "Same instinct as [the rulebook whose agent refutes its own findings](/blog/a-rulebook-of-how-money-code-breaks): the work that pays is the work spent trying to break your own result, and a result is worth what the attempt to break it was worth. A recall of 1.000 is not a property of a detector. It is a property of a detector and a generator, and only one of those two is going to meet a real scanner.",
+      },
+      {
+        kind: "h2",
+        id: "method",
+        text: "Method",
+      },
+      {
+        kind: "p",
+        text: "Repo read 2026-08-27 at [github.com/DylanMerigaud/dossier-preflight](https://github.com/DylanMerigaud/dossier-preflight), HEAD `42732f0`, public, local tooling only and no remote service. Grid: `grid/run.py`, 384 cells (angle x dpi x JPEG quality x noise) x 3 seeds = 1152 dossiers and 13,824 image readings, 121 minutes on 13 workers; 864 of those dossiers fall inside the nominal domain of 150 dpi and up. Thresholds are written by `grid/analyze.py --publish` into `thresholds.json` and `LIMITS.md`, calibrated on seeds 11 and 23, with the published figure measured on seed 37, never looked at while choosing. Operating point rule: the highest recall holding a false positive rate under 0.2% per target. Two thresholds do not come from their own curve and the file says so: `expiry` is frozen at zero by definition, and `resolution` is set at the other checks' readability floor minus 1%. Parasitic ink probe: `parasitic-ink-probe/experiment.py`, 528 readings on a `git archive` of commit `3a4e682`, measured 2026-08-21, two cells, six seeds, seven intensities plus a no-parasite control, target field `employment` / City or Town. Fifth-factor replay: `grid/run.py --parasite`, 27 cells x 3 seeds, commit `aa7e0ed`. Corpus: three blank forms exactly as their administration publishes them, W-9 (IRS) and I-9 (USCIS) in the public domain, Cerfa 14011*02 under Etalab Open Licence 2.0, with producer, source, retrieval date, licence and sha256 recorded in `corpus/CORPUS.md`. One fictional dossier, one invented person, one defect per check. No real scan and no document ever issued to anybody entered the measurement, so a recall of 1.000 here is that of the same defect seen 864 times, not of 864 different defects.",
+      },
+    ],
+  },
+  {
+    slug: "thirty-pages-google-indexed-zero",
+    title: "I Built 30 Programmatic Pages. Google Indexed Zero.",
+    metaTitle: "I Built 30 Programmatic Pages. Google Indexed Zero. | Dylan Mérigaud",
+    metaDescription:
+      "30 programmatic city pages, 99.4% average pairwise similarity, 416 of 435 pairs over threshold, zero indexed in six months. The method and the noindex call.",
+    lead: "I built one landing page per US city for RentalReels, thirty of them. Six months after the pages went live, Google had indexed zero of them.",
+    publishedAt: "2026-08-26",
+    tags: ["seo", "programmatic-seo", "measurement", "typescript"],
+    blocks: [
+      {
+        kind: "p",
+        text: 'RentalReels turns a listing\'s photos into a video walkthrough. Early on I built one landing page per US city: `/cities/miami`, `/cities/austin`, thirty of them, each opening with a line like "turn your Miami Airbnb listing into a video tour" and then the same pitch, the same pricing, the same FAQ underneath. Standard programmatic SEO. The shape every pSEO guide tells you to ship.',
+      },
+      {
+        kind: "p",
+        text: "Six months after the pages went live, Google had indexed zero of them.",
+      },
+      {
+        kind: "h2",
+        id: "search-console",
+        text: "What Search Console actually showed",
+      },
+      {
+        kind: "p",
+        text: 'The coverage report, read 2026-08-23, labeled the thirty city pages "Discovered, currently not indexed," last crawl N/A. Not deindexed. Not penalized. Never crawled at all.',
+      },
+      {
+        kind: "p",
+        text: 'The proximate cause was a bug, not a policy. The sitemap listed the pages under the apex domain (rentalreels.com), the apex 307-redirects to www, and the www page that actually served content declared its own canonical back at the apex. Google had no way out of that loop: fetch the apex, get redirected, land on a page whose canonical tag says "the real one is over there," repeat. Fixed on 2026-08-23 in commit `ac1117c9`, one host chosen (www, the domain the hosting config already served in production) and every canonical pointed the right way.',
+      },
+      {
+        kind: "h2",
+        id: "measured-first",
+        text: "Before the crawl reached them, I measured what it would find",
+      },
+      {
+        kind: "p",
+        text: "With the redirect loop closed, Google was about to crawl thirty city pages for the first time in the site's history. Before that happened, I ran the served HTML through a thin-content and near-duplicate check. Measured 2026-08-25, commit `5cd74a82`:",
+      },
+      {
+        kind: "aside",
+        text: '"30 pages, 1227 to 1230 tokens each, mean pairwise similarity 99.4 percent, min 98.2, max 100.0, 416 of 435 pairs at or above the doorway threshold, 30 of 30 flagged thin."',
+      },
+      {
+        kind: "p",
+        text: "Eight of the thirty (Miami, Orlando, San Diego, San Francisco, Los Angeles, Napa, Key West, Destin) were byte-identical to each other once each page's own slug was stripped out of the text. Not similar. Identical.",
+      },
+      {
+        kind: "h2",
+        id: "the-method",
+        text: "The method, so the number is checkable",
+      },
+      {
+        kind: "p",
+        text: "The check that produced those numbers, unpacked: the module is `microsaas-kit/src/pseo`, and this run is commit `5cd74a82`. It reads the text actually served inside `<main>`, not the source template, so it measures what a crawler sees, not what the code author intended.",
+      },
+      {
+        kind: "p",
+        text: "For every page: lowercase the body, strip the page's own slug from it (split the slug on hyphens, remove each resulting word wherever it occurs as a literal substring), then tokenize with `Intl.Segmenter`'s word-boundary detection rather than a whitespace split, so a script with no spaces between words is not silently counted as one giant token. Build the set of every contiguous 3-word shingle in what is left. Compare every pair of pages with Jaccard similarity: the size of the intersection of their shingle sets divided by the size of the union. Two identical texts score 1.0. Two texts sharing no 3-word phrase score 0.0.",
+      },
+      {
+        kind: "p",
+        text: "A pair counts as a near-duplicate at 0.75 Jaccard or above, the threshold this check calls a doorway page: same sentence template, a word or two swapped. A page also fails on its own if it carries fewer than 15 tokens once its own slug is stripped, too short to be a real page whether or not it collides with anything. Both numbers are module defaults, chosen against a false-positive stress test rather than picked to make one failing case pass, and they are the same defaults the rest of the portfolio's page sets run under.",
+      },
+      {
+        kind: "p",
+        text: 'The corpus was every pair among the thirty pages, 435 of them. 416 of those pairs, 95.6 percent, cleared 0.75. The eight-page byte-identical cluster is not the method finding something extreme. It is what "swap the city name, keep the rest" looks like once you actually measure it instead of eyeballing two pages side by side.',
+      },
+      {
+        kind: "h2",
+        id: "nothing-local",
+        text: "Why there was nothing local to write",
+      },
+      {
+        kind: "p",
+        text: "I looked for real differentiation before deciding there wasn't any, because inventing it was the other option, and a worse one. The job runs from a listing link: a customer pastes a URL, gets a video back. Nobody visits the property. Nothing about the price, the turnaround or the edit changes between Miami and Dallas. There was exactly one sample video in the codebase and it belonged to no city. The database held no delivered order to cite per market. Writing \"Gatlinburg is all cabins, we shoot for the mountain look\" would have been exactly the kind of unmeasured claim this same site had spent the prior week removing from its own homepage: invented satisfaction percentages, testimonials from people who do not exist, a client logo wall for companies with no relationship to the product. A city page for a service with no local dimension has nothing honest to say that the other twenty-nine city pages don't already say.",
+      },
+      {
+        kind: "h2",
+        id: "noindex",
+        text: "Noindex, before Google ever got there",
+      },
+      {
+        kind: "p",
+        text: "The decision: the thirty pages stay live and answer `noindex, follow`. Live, because an old ad or a direct link should still land on a page that sells something, and a `noindex` is reversible the day the offer grows an actual local dimension. Noindex, because letting Google index thirty copies of the same page right after its first real crawl of them is how a scaled-content flag gets earned, not avoided.",
+      },
+      {
+        kind: "p",
+        text: "In their place, the sitemap now offers one page, `/cities`, written once, saying directly what the thirty implied by omission: the service has no local edition. The same check run against the home page, computed on 2026-08-25: 1.6 percent similarity, 495 of its own tokens, 0 of 2 flagged thin.",
+      },
+      {
+        kind: "h2",
+        id: "the-denominator",
+        text: "What this changes, and what it doesn't",
+      },
+      {
+        kind: "p",
+        text: "This moves a denominator worth naming so a later reading of it isn't misread. The bet carries a pre-declared kill signal: if cumulative impressions on the `/cities` pages stay under 300 by mid-November, and zero real signups arrive in the meantime, the bet dies. The same sitemap that feeds Search Console reporting went from 31 URLs to 2 the day the noindex landed. A jump in the indexed-page ratio at the next reading is that sitemap edit, not organic gain. The impressions half of the gate is untouched either way: the thirty pages produced zero impressions across the whole six months they were live, so pulling them from the sitemap removes a population that had never contributed anything the gate was counting.",
+      },
+      {
+        kind: "h2",
+        id: "what-its-for",
+        text: "What the number is actually for",
+      },
+      {
+        kind: "p",
+        text: "Every guide on programmatic SEO I have read argues from the win: here is how we shipped ten thousand pages and traffic went up forty times. None of them show the check that would have told them, before publishing, which of those pages were real. Google's own scaled-content policy, updated 2026-05-15, does not leave this ambiguous:",
+      },
+      {
+        kind: "aside",
+        text: '"Scaled content abuse is when many pages are generated for the primary purpose of manipulating search rankings and not helping users. This abusive practice is typically focused on creating large amounts of unoriginal content that provides little to no value to users, no matter how it\'s created."',
+      },
+      {
+        kind: "p",
+        text: "\"No matter how it's created\" is the part that matters here. The pages were not written badly. They were written correctly, thirty times, for a service that has exactly one thing to say. The mistake was picking the city as the axis for a page set before checking whether the city changed anything measurable about the content. It didn't, and a script that took a few minutes to write said so in one run, on text that had not yet been seen by a single crawler.",
+      },
+      {
+        kind: "p",
+        text: "I would rather find that out from my own measurement than from Google's next core update. Same instinct as [the straight-through limit](/blog/the-straight-through-limit) I wrote about earlier: a threshold that only lives in someone's head is not a control, and neither is an assumption about how a page will read to a crawler. Write the check, run it before publishing, and let the number decide instead of the intent behind the page.",
+      },
+      {
+        kind: "h2",
+        id: "method",
+        text: "Method",
+      },
+      {
+        kind: "p",
+        text: "Source: served `<main>` HTML of the thirty live `/cities/<slug>` pages on rentalreels.com, measured 2026-08-25, commit `5cd74a82`. Tool: `microsaas-kit/src/pseo`, TypeScript, no dependency beyond `Intl.Segmenter`. Per page: lowercase the body, strip the page's own slug (split on hyphens, remove each resulting word as a literal substring wherever it appears), segment into words with `Intl.Segmenter({granularity: \"word\"})`, build the set of contiguous 3-word shingles. Pairwise score: Jaccard similarity of the two shingle sets, computed for all 435 unordered pairs among the 30 pages. Flags: any page under 15 tokens on its own; any pair at or above 0.75 Jaccard; any exact match after stripping. Thresholds are the module's defaults, not tuned for this result, documented in the same file that runs the check (`packages/microsaas-kit/src/pseo/index.ts`). Coverage status: Search Console UI, property `sc-domain:rentalreels.com`, read 2026-08-23.",
+      },
+    ],
+  },
   {
     slug: "the-straight-through-limit",
     title: "I built the approval gate, then put a price on it",
