@@ -60,7 +60,7 @@ export const articles: readonly Article[] = [
   {
     slug: "recall-1000-blind-to-dust",
     title: "I Published a Perfect Recall. Then I Measured Dust.",
-    metaTitle: "I Published a Perfect Recall. Then I Measured Dust. | Dylan Mérigaud",
+    metaTitle: "Precision/recall calibration undone by scanner dust | Dylan Mérigaud",
     metaDescription:
       "Nine detector thresholds read off precision/recall curves and validated on a held-out seed, and the one measurement that turns 1.000 into 0.000.",
     lead: "A detector that scores perfectly on your benchmark is telling you something about your benchmark.",
@@ -232,7 +232,7 @@ per-zone OCR                   1.000  0.778        0.679  0.630  0.481`,
   {
     slug: "thirty-pages-google-indexed-zero",
     title: "I Built 30 Programmatic Pages. Google Indexed Zero.",
-    metaTitle: "I Built 30 Programmatic Pages. Google Indexed Zero. | Dylan Mérigaud",
+    metaTitle: "30 programmatic SEO pages Google never indexed | Dylan Mérigaud",
     metaDescription:
       "30 programmatic city pages, 99.4% average pairwise similarity, 416 of 435 pairs over threshold, zero indexed in six months. The method and the noindex call.",
     lead: "I built one landing page per US city for RentalReels, thirty of them. Six months after the pages went live, Google had indexed zero of them.",
