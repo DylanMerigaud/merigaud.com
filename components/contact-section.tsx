@@ -1,3 +1,4 @@
+import { PreferredSourceLink } from "@dylanmerigaud/microsaas-kit/ui";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -81,6 +82,18 @@ export const ContactSection = () => (
         </ul>
         <p className="eyebrow text-trace mt-6 md:mt-0">{footer.note}</p>
       </footer>
+      {/* Google's own "Preferred Sources" feature (developers.google.com/search/docs/appearance/
+          preferred-sources): a standalone line rather than a footer.links entry, since that array
+          is site navigation and this is an external Google URL with a different job. A plain
+          deeplink, no third-party script, same pattern as normfin's site-footer.tsx. */}
+      <p className="eyebrow text-trace mt-4 pl-7 md:pl-10">
+        <PreferredSourceLink
+          domain="dylan.merigaud.com"
+          className="quiet-link hover:text-ink transition-colors"
+        >
+          Follow updates in Google
+        </PreferredSourceLink>
+      </p>
     </div>
   </section>
 );
