@@ -2,10 +2,14 @@ import {
   CONSENT_COOKIE_NAME,
   POSTHOG_PROXY_PATH,
   posthogTrailingSlashRedirect,
+  reportAiCrawlerHit,
   resolveConsentGate,
 } from "@dylanmerigaud/microsaas-kit/analytics";
 import { geolocation } from "@vercel/functions";
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextFetchEvent, type NextRequest, NextResponse } from "next/server";
+
+import { SITE_ID } from "@/lib/analytics";
+import { env } from "@/lib/env";
 
 /**
  * This site had no middleware before PostHog. It gains one now for exactly two reasons:
@@ -22,7 +26,28 @@ import { type NextRequest, NextResponse } from "next/server";
  * read it synchronously via document.cookie, and neither may wait on a server round trip before
  * first paint.
  */
-export const proxy = (request: NextRequest): NextResponse => {
+export const proxy = (request: NextRequest, event: NextFetchEvent): NextResponse => {
+  /**
+   * AI-CRAWLER COUNT. This domain is proxied by Cloudflare too, so this in-app count doubles as
+   * the calibration of the Cloudflare reading (same day, same crawler, two instruments). One
+   * `ai_crawler_hit` PostHog event per crawler request, stamped with the same `site` as every
+   * other event, no person and no consent branch (a crawler is not a visitor and nothing is
+   * stored in a browser). It runs BEFORE the trailing-slash redirect on purpose: a crawler
+   * fetching `/foo/` is still a fetch. `waitUntil` lets the POST finish after the response is
+   * gone; the kit swallows a failed send, so a lost count never costs a page. The daily reader
+   * lives in growth-cockpit (scripts/llm_crawl.py).
+   */
+  reportAiCrawlerHit(
+    {
+      site: SITE_ID,
+      posthogKey: env.NEXT_PUBLIC_POSTHOG_KEY,
+      userAgent: request.headers.get("user-agent"),
+      host: request.nextUrl.host,
+      path: request.nextUrl.pathname,
+    },
+    { waitUntil: (promise) => event.waitUntil(promise) }
+  );
+
   const { pathname, search } = request.nextUrl;
   const redirectTarget = posthogTrailingSlashRedirect(pathname, search);
   if (redirectTarget !== null) {
