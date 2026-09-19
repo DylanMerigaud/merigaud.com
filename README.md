@@ -2,7 +2,7 @@
 
 The portfolio of **Dylan Mérigaud**, freelance AI full-stack engineer for fintech (AP automation, approval workflows, agents, evals).
 
-**Live: [merigaud.com](https://merigaud.com)**
+**Live: [merigaud.com](https://merigaud.com?utm_source=github&utm_medium=readme&utm_campaign=merigaud)**
 
 ![merigaud.com](./public/og.jpg)
 
