@@ -62,7 +62,7 @@ export const articles: readonly Article[] = [
     title: "I Published a Perfect Recall. Then I Measured Dust.",
     metaTitle: "Precision/recall calibration undone by scanner dust | Dylan Mérigaud",
     metaDescription:
-      "Nine detector thresholds read off precision/recall curves and validated on a held-out seed, and the one measurement that turns 1.000 into 0.000.",
+      "Seven of nine detector thresholds read off precision/recall curves and validated on a held-out seed, and the one measurement that turns 1.000 into 0.000.",
     lead: "A detector that scores perfectly on your benchmark is telling you something about your benchmark.",
     publishedAt: "2026-08-27",
     tags: ["evals", "measurement", "document-verification", "python"],
@@ -78,11 +78,11 @@ export const articles: readonly Article[] = [
       },
       {
         kind: "p",
-        text: "Nine checks: a required field left empty, a box left unticked, a missing signature, an expired piece, two pieces whose data disagree, a forbidden value reappearing, a scan too coarse to read, a truncated page, an upside-down page. Each one emits a continuous score, and each threshold is read off a precision/recall curve instead of chosen by eye (commit `db72954`).",
+        text: "Nine checks: a required field left empty, a box left unticked, a missing signature, an expired piece, two pieces whose data disagree, a forbidden value reappearing, a scan too coarse to read, a truncated page, an upside-down page. Each one emits a continuous score. Seven of the nine thresholds are read off their own precision/recall curve instead of chosen by eye (commit `db72954`); expiry is frozen at zero days by definition, and resolution sits at the 150 dpi readability floor minus a 1% margin.",
       },
       {
         kind: "p",
-        text: "The rig behind that: 384 cells (6 rotation angles x 4 resolutions x 4 JPEG qualities x 4 noise levels) x 3 seeds = 1152 dossiers, 13,824 image readings, 121 minutes on 13 local workers. Inside the nominal domain of 150 dpi and up, eight of the nine checks hold a recall of 1.000 at zero false positives per target. The ninth, forbidden values, holds 0.997 at 0.00058 per target.",
+        text: "The rig behind that: 384 cells (6 rotation angles x 4 resolutions x 4 JPEG qualities x 4 noise levels) x 3 seeds = 1152 dossiers, 14,976 image readings across four forms (the first 13,824, on three forms, took 121 minutes on 13 local workers). Inside the nominal domain of 150 dpi and up, eight of the nine checks hold a recall of 1.000 at zero false positives per target. The ninth, forbidden values, holds 0.997 at 0.00043 per target on the held-out seed.",
       },
       {
         kind: "p",
@@ -121,7 +121,7 @@ export const articles: readonly Article[] = [
         code: `sensor                                         recall  false positives per target
 ---------------------------------------------  ------  --------------------------
 added ink, threshold 128 (retained)            1.000   0.0000
-full-page plus per-zone OCR, min confidence 0  1.000   0.0003
+full-page plus per-zone OCR, min confidence 0  1.000   0.0016
 OCR alone, min confidence 10 and up            0.000   0.0000`,
       },
       {
@@ -164,7 +164,7 @@ per-zone OCR                             0.106            [0.066, 0.165]`,
       },
       {
         kind: "p",
-        text: "A probe on one field, two cells and three ink shapes shows that a choice was settled on biased ground. It is not enough to move a threshold. So the grid was replayed with parasitic ink as a fifth factor, laid on the very field a variant empties, over 27 cells and 3 seeds (commit `aa7e0ed`).",
+        text: "A probe on one field, two cells and three ink shapes shows that a choice was settled on biased ground. It is not enough to move a threshold. So the grid was replayed with parasitic ink as a fifth factor (108 cells, three ink levels, 3 seeds); that replay never once landed on the field a variant empties, so a targeted run laid the ink on exactly that field, over 27 cells and 3 seeds (commit `aa7e0ed`).",
       },
       {
         kind: "code",
@@ -225,7 +225,7 @@ per-zone OCR                   1.000  0.778        0.679  0.630  0.481`,
       },
       {
         kind: "p",
-        text: "Repo read 2026-08-27 at [github.com/DylanMerigaud/dossier-preflight](https://github.com/DylanMerigaud/dossier-preflight), HEAD `42732f0`, public, local tooling only and no remote service. Grid: `grid/run.py`, 384 cells (angle x dpi x JPEG quality x noise) x 3 seeds = 1152 dossiers and 13,824 image readings, 121 minutes on 13 workers; 864 of those dossiers fall inside the nominal domain of 150 dpi and up. Thresholds are written by `grid/analyze.py --publish` into `thresholds.json` and `LIMITS.md`, calibrated on seeds 11 and 23, with the published figure measured on seed 37, never looked at while choosing. Operating point rule: the highest recall holding a false positive rate under 0.2% per target. Two thresholds do not come from their own curve and the file says so: `expiry` is frozen at zero by definition, and `resolution` is set at the other checks' readability floor minus 1%. Parasitic ink probe: `parasitic-ink-probe/experiment.py`, 528 readings on a `git archive` of commit `3a4e682`, measured 2026-08-21, two cells, six seeds, seven intensities plus a no-parasite control, target field `employment` / City or Town. Fifth-factor replay: `grid/run.py --parasite`, 27 cells x 3 seeds, commit `aa7e0ed`. Corpus: three blank forms exactly as their administration publishes them, W-9 (IRS) and I-9 (USCIS) in the public domain, Cerfa 14011*02 under Etalab Open Licence 2.0, with producer, source, retrieval date, licence and sha256 recorded in `corpus/CORPUS.md`. One fictional dossier, one invented person, one defect per check. No real scan and no document ever issued to anybody entered the measurement, so a recall of 1.000 here is that of the same defect seen 864 times, not of 864 different defects.",
+        text: "Repo read 2026-08-27 at [github.com/DylanMerigaud/dossier-preflight](https://github.com/DylanMerigaud/dossier-preflight), HEAD `42732f0`, public, local tooling only and no remote service. Grid: `grid/run.py`, 384 cells (angle x dpi x JPEG quality x noise) x 3 seeds = 1152 dossiers and 14,976 image readings (the first 13,824 took 121 minutes on 13 workers); 864 of those dossiers fall inside the nominal domain of 150 dpi and up. Thresholds are written by `grid/analyze.py --publish` into `thresholds.json` and `LIMITS.md`, calibrated on seeds 11 and 23, with the published figure measured on seed 37, never looked at while choosing. Operating point rule: the highest recall holding a false positive rate under 0.2% per target. Two thresholds do not come from their own curve and the file says so: `expiry` is frozen at zero by definition, and `resolution` is set at the other checks' readability floor minus 1%. Parasitic ink probe: `parasitic-ink-probe/experiment.py`, 528 readings on a `git archive` of commit `3a4e682`, measured 2026-08-21, two cells, six seeds, seven intensities plus a no-parasite control, target field `employment` / City or Town. Fifth-factor replay: `grid/run.py --parasite`, 108 cells x 3 ink levels x 3 seeds, 12,636 readings; targeted run: `grid/target_parasite.py`, 27 cells x 3 seeds, commit `aa7e0ed`. Corpus: four blank forms exactly as their administration publishes them, the W-9 and its Spanish edition (IRS) and the I-9 (USCIS) in the public domain, Cerfa 14011*02 under Etalab Open Licence 2.0, with producer, source, retrieval date, licence and sha256 recorded in `corpus/CORPUS.md`. One fictional dossier, one invented person, one defect per check. No real scan and no document ever issued to anybody entered the measurement, so a recall of 1.000 here is that of the same defect seen 864 times, not of 864 different defects.",
       },
     ],
   },
