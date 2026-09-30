@@ -1,31 +1,58 @@
-# deps
-/node_modules
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# next
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
 /.next/
+/.swc
 /out/
-next-env.d.ts
+
+# production
+/build
+
+# packages: the kit's build output (rebuilt by prepublishOnly, shipped in the npm tarball via
+# its package.json "files", never committed as source).
+packages/*/dist
+packages/*/node_modules
+packages/*/*.tsbuildinfo
 
 # misc
 .DS_Store
-*.tsbuildinfo
+*.pem
 
-# env
-.env
-.env.local
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (local secrets stay out; the committed example is the contract)
+.env*
+!.env.example
 
 # vercel
 .vercel
 
-# hero generation working files (finals are committed in public/)
-/scripts/out/
-.env*
-# ...except the template every real .env.local is copied from, which has no
-# secret in it (the PostHog key it documents is a write-only public token).
-!.env.example
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 
 # claude code local state: worktrees carry their own node_modules and .next,
 # so an unguarded `git add -A` would stage ~800MB. Narrow on purpose, so real
 # project config (.claude/settings.json, .claude/skills/) stays trackable.
 /.claude/worktrees/
 /.claude/auto-worktree
+
+# hero generation working files (finals are committed in public/)
+/scripts/out/

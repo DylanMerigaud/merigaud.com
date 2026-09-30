@@ -20,6 +20,7 @@ import { env } from "@/lib/env";
  * passing it through is what lets a digest seen in a browser console be matched to the issue here.
  */
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
+  // eslint-disable-next-line no-restricted-syntax -- NEXT_RUNTIME is a Next-injected build constant used to skip the edge bundle; it is not app config and never belongs in lib/env.ts.
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
   const { createServerAnalytics } = await import("@dylanmerigaud/microsaas-kit/analytics/server");
