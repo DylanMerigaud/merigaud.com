@@ -1,0 +1,7 @@
+# Dependabot resolves with a 3 day release-age cutoff (pnpm minimumReleaseAge). The kit is our own
+# package and is released the same day it is consumed here, so without this exclusion the
+# Dependabot job fails with ERR_PNPM_NO_MATCHING_VERSION for the first 3 days after every release
+# (run 36730937501, 2026-09-30: kit 0.13.0 was 22 minutes old). It must live in this file:
+# pnpm 10.24 ignores minimumReleaseAgeExclude under the "pnpm" key of package.json.
+minimumReleaseAgeExclude:
+  - "@dylanmerigaud/microsaas-kit"
