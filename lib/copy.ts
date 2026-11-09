@@ -113,7 +113,7 @@ export const work: WorkItem[] = [
     ],
     links: [
       { label: "Case study", href: "/work/approvals-ui" },
-      { label: "Live playground", href: "https://approvals-ui.vercel.app" },
+      { label: "Live playground", href: "https://approvals-ui.merigaud.com" },
       { label: "GitHub", href: "https://github.com/DylanMerigaud/approvals-ui" },
       { label: "npm", href: "https://www.npmjs.com/package/react-flow-auto-layout" },
     ],

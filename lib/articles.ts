@@ -916,7 +916,7 @@ await this.captureService_.create({ /* ... */ })`,
       },
       {
         kind: "p",
-        text: "It lays out the canvas in [approvals-ui](/work/approvals-ui) and the approval flow in [ledgerloop](/work/ledgerloop). [npm](https://www.npmjs.com/package/react-flow-auto-layout) · [source](https://github.com/DylanMerigaud/react-flow-auto-layout) · [live demo](https://react-flow-auto-layout-ecru.vercel.app).",
+        text: "It lays out the canvas in [approvals-ui](/work/approvals-ui) and the approval flow in [ledgerloop](/work/ledgerloop). [npm](https://www.npmjs.com/package/react-flow-auto-layout) · [source](https://github.com/DylanMerigaud/react-flow-auto-layout) · [live demo](https://react-flow-auto-layout.merigaud.com).",
       },
     ],
   },

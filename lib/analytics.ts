@@ -46,7 +46,7 @@ export const ANALYTICS_CLICK_RULES: readonly ClickRule[] = [
   },
   {
     event: "demo_click",
-    hosts: ["approvals-ui.vercel.app"],
+    hosts: ["approvals-ui.merigaud.com"],
     properties: { project: "approvals-ui" },
   },
   { event: "repo_click", hosts: ["github.com"], properties: { target: "github" } },
