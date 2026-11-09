@@ -171,6 +171,17 @@ export const workMore = {
   ],
 } as const;
 
+// The data files sold under my own name, one public page each on a merigaud.com
+// host. The list itself is lib/files.json, written by the cockpit row that
+// publishes those pages (growth-cockpit scripts/bet_pages.py sync), so the site
+// fetches nothing at runtime and a page taken down leaves on the next build.
+export const filesSection = {
+  eyebrow: "also built here",
+  heading: "Files",
+  intro:
+    "Data files I build from public records, one page each: what the file holds, where its numbers come from, a sample of its rows.",
+} as const;
+
 export const testimonials = {
   eyebrow: "vouched for",
   heading: "People who shipped with me at Pivot",

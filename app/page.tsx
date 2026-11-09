@@ -2,6 +2,7 @@ import { ApproachSection } from "@/components/approach-section";
 import { ContactSection } from "@/components/contact-section";
 import { EngagementSection } from "@/components/engagement-section";
 import { ExperienceSection } from "@/components/experience-section";
+import { FilesSection } from "@/components/files-section";
 import { HeroGate } from "@/components/hero-gate";
 import { NotesSection } from "@/components/notes-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
@@ -29,6 +30,7 @@ export default function Page() {
         <ExperienceSection />
         <ApproachSection />
         <NotesSection />
+        <FilesSection />
         <EngagementSection />
         <ContactSection />
         {/* Anchors the grey trace track to the page bottom so the gutter slit is
