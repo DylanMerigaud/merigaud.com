@@ -33,14 +33,17 @@ export const ConsentBanner = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const cw = readConsentCookie();
-    if (!isConsentGated(cw)) return;
+    // An explicit "0" settles it. Otherwise the cookie may not exist yet (the
+    // kit's PostHogClient writes it from Cloudflare's trace before init), so it
+    // is re-read on every check, and a missing one counts as gated (kit 0.14.0).
+    if (!isConsentGated(readConsentCookie())) return;
 
     // PostHog's own consent store decides this, not anything React renders,
     // so it runs imperatively: once now, and once more whenever
     // POSTHOG_READY_EVENT fires, since the SDK arrives from a lazy chunk and
     // is not necessarily loaded yet on this component's first render.
     const checkStatus = () => {
+      const cw = readConsentCookie();
       const instance = getPostHogInstance();
       const status = instance ? instance.get_explicit_consent_status() : null;
       // eslint-disable-next-line @eslint-react/set-state-in-effect -- mirrors PostHog's own explicit-consent store (not derivable from props/render), and must apply synchronously the moment POSTHOG_READY_EVENT fires.

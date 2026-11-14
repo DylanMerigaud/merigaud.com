@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { TrackClicks } from "@dylanmerigaud/microsaas-kit/analytics/components";
-import { Analytics } from "@vercel/analytics/next";
 
 import { fontMono, fontSans } from "@/app/fonts";
 import { ConsentBanner } from "@/components/consent-banner";
@@ -89,7 +88,6 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
         Skip to content
       </a>
       {children}
-      <Analytics />
       <PostHogClient />
       <TrackClicks rules={ANALYTICS_CLICK_RULES} />
       <ConsentBanner />

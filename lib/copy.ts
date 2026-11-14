@@ -329,8 +329,8 @@ export const privacy = {
   intro:
     "What this site tracks, why, and who sees it. No forms, no accounts, no ad trackers, nothing sold.",
   updatedLabel: "Last updated",
-  updatedAt: "2026-07-30",
-  updated: "July 30, 2026",
+  updatedAt: "2026-11-14",
+  updated: "November 14, 2026",
   backCta: "Back to the trace",
   sections: [
     {
@@ -338,8 +338,7 @@ export const privacy = {
       paragraphs: [
         "PostHog runs product analytics: pageviews, autocapture of clicks, and Core Web Vitals, the load and responsiveness numbers Google uses for ranking.",
         "Four named events track outbound intent: email_click, call_click, demo_click, repo_click. Each just records that a link of that kind was clicked and which part of the page it was in.",
-        "Events go through this site's own domain, not a third-party one: PostHog is proxied at /hue.",
-        "Vercel Analytics runs alongside it: anonymous pageviews. Vercel is also this site's host.",
+        "Events go straight to PostHog's US cloud (us.i.posthog.com). The site itself is plain files served by Cloudflare Pages, with no server code of its own.",
       ],
     },
     {
@@ -355,7 +354,7 @@ export const privacy = {
         "Visiting from the EU, the EEA, the UK, Switzerland, or Gibraltar gets you a banner before anything identifiable is captured.",
         "Decline and PostHog switches to a cookieless rotating hash rather than turning off: you're still counted in the pageview total, never identified, never followed across sessions. Accept and it behaves like it does for everyone else from that point on.",
         "Everyone outside that list is captured in normal cookie mode from the first pageview, no banner.",
-        "Your region is resolved once, server-side, from the hosting network's own IP geolocation, into a small cookie named cw that just records which mode applies. Your browser never re-derives your location.",
+        "Your region is resolved once, from the country Cloudflare's network reads off your connection (its /cdn-cgi/trace answer), into a small cookie named cw that just records which mode applies. Until that is read, you are treated as a visitor who gets the banner.",
       ],
     },
     {

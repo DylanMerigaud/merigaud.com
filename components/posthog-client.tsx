@@ -1,6 +1,5 @@
 "use client";
 
-import { POSTHOG_PROXY_PATH } from "@dylanmerigaud/microsaas-kit/analytics";
 import { PostHogClient as KitPostHogClient } from "@dylanmerigaud/microsaas-kit/analytics/components";
 
 import { isReplayAllowedPath, SITE_ID } from "@/lib/analytics";
@@ -14,11 +13,16 @@ import { env } from "@/lib/env";
  * one freely). Declaring the config here, inside a file that is ITSELF a Client Component, means
  * `isReplayAllowedPath` never crosses the RSC boundary at all; layout.tsx only ever renders
  * `<PostHogClient />` with zero props.
+ *
+ * No `host`: events go to PostHog's US cloud directly (the kit's default), since this site runs
+ * no edge code to proxy them. `consentSource="trace"`: no edge code sets the `cw` consent cookie
+ * either, so the kit reads the country from Cloudflare's /cdn-cgi/trace and writes it before
+ * init (kit 0.14.0, fail closed until it is read).
  */
 export const PostHogClient = () => (
   <KitPostHogClient
     posthogKey={env.NEXT_PUBLIC_POSTHOG_KEY}
-    host={POSTHOG_PROXY_PATH}
+    consentSource="trace"
     site={SITE_ID}
     isReplayAllowedPath={isReplayAllowedPath}
   />
