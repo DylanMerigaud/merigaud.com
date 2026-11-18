@@ -4,10 +4,6 @@
     "url": "https://campaign-print-spending.merigaud.com"
   },
   {
-    "title": "Contract nurse hours at every nursing home near your office",
-    "url": "https://nursing-home-staffing.merigaud.com"
-  },
-  {
     "title": "HUD apartment properties near your yard that failed inspection",
     "url": "https://failed-hud-inspections.merigaud.com"
   },
@@ -18,6 +14,10 @@
   {
     "title": "Out-of-service public EV chargers near your electrical shop",
     "url": "https://ev-charger-outages.merigaud.com"
+  },
+  {
+    "title": "Play apps near you that Google now hides from new users",
+    "url": "https://outdated-android-apps.merigaud.com"
   },
   {
     "title": "Your plan's late 401(k) deposits, read from your own 5500 filings",
