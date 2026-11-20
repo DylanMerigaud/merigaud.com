@@ -1,30 +1,10 @@
 [
   {
-    "title": "HUD apartment properties near your yard that failed inspection",
-    "url": "https://failed-hud-inspections.merigaud.com"
-  },
-  {
     "title": "Nonprofit fundraising events near your kitchen and their food budgets",
     "url": "https://nonprofit-event-food-spend.merigaud.com"
   },
   {
-    "title": "Nonprofit security grants awarded near your shop",
-    "url": "https://nonprofit-security-grants.merigaud.com"
-  },
-  {
     "title": "Out-of-service public EV chargers near your electrical shop",
     "url": "https://ev-charger-outages.merigaud.com"
-  },
-  {
-    "title": "Play apps near you that Google now hides from new users",
-    "url": "https://outdated-android-apps.merigaud.com"
-  },
-  {
-    "title": "Who the campaigns in your county paid for print and signs",
-    "url": "https://campaign-print-spending.merigaud.com"
-  },
-  {
-    "title": "Your plan's late 401(k) deposits, read from your own 5500 filings",
-    "url": "https://repeat-late-401k-deposits.merigaud.com"
   }
 ]
