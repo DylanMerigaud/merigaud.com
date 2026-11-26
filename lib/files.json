@@ -42,5 +42,9 @@
   {
     "title": "Vehicles registered near your shop, by make, year and fuel",
     "url": "https://zip-vehicle-counts.merigaud.com"
+  },
+  {
+    "title": "Your customer's sworn payments to you in its Chapter 11 case",
+    "url": "https://bankrupt-customer-payments.merigaud.com"
   }
 ]
